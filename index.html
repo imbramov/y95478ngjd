@@ -26,9 +26,9 @@
             border-bottom: 1px solid #1a1a1a;
             margin-bottom: 10px;
         }
-        .header h1 { font-size: 22px; font-weight: 800; color: #f90; text-transform: uppercase; letter-spacing: 1px; }
+        .header h1 { font-size: 22px; font-weight: 800; color: #00baff; text-transform: uppercase; letter-spacing: 1px; }
         .header-right { display: flex; align-items: center; gap: 12px; }
-        .balance-display { font-size: 16px; font-weight: 700; color: #ffd700; }
+        .balance-display { font-size: 16px; font-weight: 700; color: #00baff; }
         .balance-display span { font-size: 12px; color: #666; font-weight: 400; }
         
         /* Stats bar */
@@ -48,7 +48,7 @@
         .stat-item .lbl { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
         .stat-item .val.green { color: #4caf50; }
         .stat-item .val.red { color: #f44336; }
-        .stat-item .val.orange { color: #f90; }
+        .stat-item .val.blue { color: #00baff; }
         
         /* Multiplier section - the main game area */
         .game-area {
@@ -70,7 +70,7 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at center, rgba(255,153,0,0.05) 0%, transparent 70%);
+            background: radial-gradient(circle at center, rgba(0,186,255,0.06) 0%, transparent 70%);
             pointer-events: none;
         }
         .multiplier {
@@ -137,7 +137,7 @@
             font-weight: 700;
             outline: none;
         }
-        .bet-input:focus { border-color: #f90; }
+        .bet-input:focus { border-color: #00baff; }
         .bet-quick {
             display: flex;
             gap: 4px;
@@ -153,7 +153,7 @@
             font-weight: 600;
             transition: all 0.15s;
         }
-        .bet-quick button:hover { border-color: #f90; color: #f90; }
+        .bet-quick button:hover { border-color: #00baff; color: #00baff; }
         
         /* Actions */
         .actions {
@@ -174,7 +174,7 @@
             letter-spacing: 0.5px;
         }
         .btn-bet {
-            background: linear-gradient(180deg, #ffab00, #f90);
+            background: linear-gradient(180deg, #00c8ff, #0088cc);
             color: #000;
         }
         .btn-bet:hover { filter: brightness(1.1); transform: translateY(-1px); }
@@ -218,7 +218,7 @@
         }
         .tab.active {
             background: #0d0d0d;
-            color: #f90;
+            color: #00baff;
         }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -249,7 +249,7 @@
             font-size: 13px;
             outline: none;
         }
-        .auto-row input:focus { border-color: #f90; }
+        .auto-row input:focus { border-color: #00baff; }
         .auto-info { font-size: 11px; color: #555; text-align: center; margin-top: 6px; }
         
         /* History */
@@ -278,7 +278,7 @@
             animation: fadeIn 0.2s;
         }
         .h-item.high { background: rgba(76,175,80,0.2); color: #4caf50; }
-        .h-item.med { background: rgba(255,153,0,0.2); color: #f90; }
+        .h-item.med { background: rgba(0,186,255,0.2); color: #00baff; }
         .h-item.low { background: rgba(244,67,54,0.2); color: #f44336; }
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.8); }
@@ -341,11 +341,11 @@
             <div class="lbl">Losses</div>
         </div>
         <div class="stat-item">
-            <div class="val orange" id="bestMult">1.00x</div>
+            <div class="val blue" id="bestMult">1.00x</div>
             <div class="lbl">Best</div>
         </div>
         <div class="stat-item">
-            <div class="val orange" id="winRate">0%</div>
+            <div class="val blue" id="winRate">0%</div>
             <div class="lbl">Win Rate</div>
         </div>
     </div>
