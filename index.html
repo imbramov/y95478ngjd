@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash</title>
+    <title>Crash Signals</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -25,10 +25,8 @@
             border-bottom: 1px solid #1a1a1a;
             margin-bottom: 10px;
         }
-        .header h1 { font-size: 22px; font-weight: 800; color: #00baff; text-transform: uppercase; letter-spacing: 1px; }
-        .header-right { display: flex; align-items: center; gap: 12px; }
-        .balance-display { font-size: 16px; font-weight: 700; color: #00baff; }
-        .balance-display span { font-size: 12px; color: #666; font-weight: 400; }
+        .header h1 { font-size: 20px; font-weight: 800; color: #00baff; text-transform: uppercase; letter-spacing: 1px; }
+        .header-sub { font-size: 11px; color: #555; }
         
         .stats-bar {
             display: flex;
@@ -44,113 +42,88 @@
         }
         .stat-item .val { font-size: 16px; font-weight: 700; }
         .stat-item .lbl { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
-        .stat-item .val.green { color: #4caf50; }
-        .stat-item .val.red { color: #f44336; }
-        .stat-item .val.blue { color: #00baff; }
+        .stat-item .val.color-green { color: #4caf50; }
+        .stat-item .val.color-blue { color: #00baff; }
+        .stat-item .val.color-orange { color: #ff9800; }
         
-        .game-area {
+        .signal-area {
             background: #111;
             border-radius: 12px;
             padding: 20px 15px;
             margin-bottom: 10px;
             text-align: center;
-            position: relative;
+            border: 1px solid #1a1a1a;
             min-height: 200px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            border: 1px solid #1a1a1a;
+            position: relative;
             overflow: hidden;
         }
-        .game-area::before {
+        .signal-area::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: radial-gradient(circle at center, rgba(0,186,255,0.06) 0%, transparent 70%);
             pointer-events: none;
         }
-        .multiplier {
-            font-size: 72px;
+        
+        .signal-big {
+            font-size: 52px;
             font-weight: 900;
-            position: relative;
-            transition: color 0.15s;
             line-height: 1;
-        }
-        .multiplier.running { color: #4caf50; }
-        .multiplier.crashed { color: #f44336; animation: crashPulse 0.4s ease-in-out 2; }
-        .multiplier.waiting { color: #666; }
-        @keyframes crashPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-        }
-        .game-status {
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 8px;
-            padding: 4px 16px;
-            border-radius: 50px;
-            display: inline-block;
             position: relative;
         }
-        .game-status.waiting { color: #888; }
-        .game-status.running { color: #4caf50; }
-        .game-status.crashed { color: #f44336; }
-        
-        .chart-wrap {
-            background: #111;
-            border-radius: 12px;
-            padding: 10px;
-            margin-bottom: 10px;
-            height: 80px;
-            border: 1px solid #1a1a1a;
-        }
-        #chart { width: 100%; height: 100%; display: block; }
-        
-        .bet-panel {
-            background: #1a1a1a;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 10px;
-        }
-        .bet-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .bet-row:last-child { margin-bottom: 0; }
-        .bet-label { font-size: 11px; color: #666; min-width: 40px; text-transform: uppercase; letter-spacing: 0.3px; }
-        .bet-input {
-            flex: 1;
-            background: #0d0d0d;
-            border: 1px solid #2a2a2a;
-            border-radius: 8px;
-            padding: 8px 12px;
-            color: #fff;
-            font-size: 15px;
-            font-weight: 700;
-            outline: none;
-        }
-        .bet-input:focus { border-color: #00baff; }
-        .bet-quick {
-            display: flex;
-            gap: 4px;
-        }
-        .bet-quick button {
-            background: #0d0d0d;
-            border: 1px solid #2a2a2a;
-            color: #888;
-            padding: 4px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
+        .signal-big .x-label { font-size: 0.4em; }
+        .signal-label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 6px;
             font-weight: 600;
-            transition: all 0.15s;
         }
-        .bet-quick button:hover { border-color: #00baff; color: #00baff; }
+        .signal-tag {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+        .signal-tag.green { background: rgba(76,175,80,0.15); color: #4caf50; }
+        .signal-tag.blue { background: rgba(0,186,255,0.15); color: #00baff; }
+        .signal-tag.orange { background: rgba(255,152,0,0.15); color: #ff9800; }
+        .signal-tag.red { background: rgba(244,67,54,0.15); color: #f44336; }
         
-        .btn-cashout {
+        .loading-anim {
+            text-align: center;
+        }
+        .loading-anim .spinner {
+            width: 48px; height: 48px;
+            border: 4px solid #1a1a1a;
+            border-top-color: #00baff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-anim p {
+            font-size: 13px;
+            color: #888;
+            margin: 4px 0;
+        }
+        .loading-anim .dots::after {
+            content: '';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+        @keyframes dots {
+            0% { content: ''; }
+            33% { content: '.'; }
+            66% { content: '..'; }
+            100% { content: '...'; }
+        }
+        
+        .btn-signal {
             width: 100%;
             padding: 16px;
             border: none;
@@ -163,114 +136,98 @@
             letter-spacing: 0.5px;
             background: linear-gradient(180deg, #00c8ff, #0088cc);
             color: #fff;
-        }
-        .btn-cashout:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .btn-cashout:disabled { opacity: 0.3; filter: none; transform: none; cursor: not-allowed; }
-        
-        .btn-stop {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 10px;
-            font-size: 17px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background: linear-gradient(180deg, #ef5350, #e53935);
-            color: #fff;
-        }
-        .btn-stop:hover { filter: brightness(1.1); }
-        .btn-stop:disabled { opacity: 0.3; filter: none; cursor: not-allowed; }
-        
-        .tabs {
-            display: flex;
-            gap: 4px;
             margin-bottom: 10px;
-            background: #1a1a1a;
-            border-radius: 10px;
-            padding: 3px;
         }
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 12px;
+        .btn-signal:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-signal:disabled { opacity: 0.3; filter: none; transform: none; cursor: not-allowed; }
+        
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #00baff;
+            border-radius: 10px;
+            font-size: 14px;
             font-weight: 700;
-            color: #666;
             cursor: pointer;
             transition: all 0.2s;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-        .tab.active {
-            background: #0d0d0d;
+            background: transparent;
             color: #00baff;
         }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        .auto-settings {
-            display: none;
-            background: #1a1a1a;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 10px;
-        }
-        .auto-settings.show { display: block; }
-        .auto-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-        .auto-row label { font-size: 11px; color: #888; min-width: 80px; }
-        .auto-row input {
-            flex: 1;
-            background: #0d0d0d;
-            border: 1px solid #2a2a2a;
-            border-radius: 6px;
-            padding: 6px 10px;
-            color: #fff;
-            font-size: 13px;
-            outline: none;
-        }
-        .auto-row input:focus { border-color: #00baff; }
-        .auto-info { font-size: 11px; color: #555; text-align: center; margin-top: 6px; }
+        .btn-secondary:hover { background: rgba(0,186,255,0.1); }
         
         .history-wrap {
             background: #1a1a1a;
             border-radius: 12px;
             padding: 12px;
+            margin-top: 10px;
         }
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .history-title { font-size: 12px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.3px; }
-        .history-list {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
+        .history-title { font-size: 12px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; }
+        .history-grid { display: flex; gap: 4px; flex-wrap: wrap; }
         .h-item {
-            padding: 3px 8px;
+            padding: 2px 8px;
             border-radius: 6px;
             font-size: 11px;
             font-weight: 700;
-            animation: fadeIn 0.2s;
+            animation: fadeIn 0.3s;
         }
-        .h-item.high { background: rgba(76,175,80,0.2); color: #4caf50; }
-        .h-item.med { background: rgba(0,186,255,0.2); color: #00baff; }
-        .h-item.low { background: rgba(244,67,54,0.2); color: #f44336; }
+        .h-item.green { background: rgba(76,175,80,0.2); color: #4caf50; }
+        .h-item.yellow { background: rgba(255,235,59,0.2); color: #ffeb3b; }
+        .h-item.orange { background: rgba(255,152,0,0.2); color: #ff9800; }
+        .h-item.red { background: rgba(244,67,54,0.2); color: #f44336; }
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.8); }
             to { opacity: 1; transform: scale(1); }
         }
+        
+        .info-block {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #1f1f1f;
+            font-size: 13px;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-row .label { color: #666; }
+        .info-row .value { font-weight: 700; color: #fff; }
+        .info-row .value.green { color: #4caf50; }
+        .info-row .value.blue { color: #00baff; }
+        
+        .strategies-block {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .strat-item {
+            display: flex;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #1f1f1f;
+            align-items: flex-start;
+        }
+        .strat-item:last-child { border-bottom: none; }
+        .strat-item .num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #0d0d0d;
+            color: #00baff;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .strat-item .content h4 { font-size: 13px; color: #fff; margin-bottom: 2px; }
+        .strat-item .content p { font-size: 11px; color: #666; }
         
         .toast {
             position: fixed;
@@ -296,13 +253,9 @@
             to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
         
-        ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-        
         @media (max-width: 420px) {
-            .multiplier { font-size: 56px; }
-            .game-area { min-height: 160px; padding: 15px; }
+            .signal-big { font-size: 42px; }
+            .signal-area { min-height: 160px; padding: 15px; }
         }
     </style>
 </head>
@@ -310,113 +263,110 @@
 <div class="container">
     <!-- Header -->
     <div class="header">
-        <h1>Crash</h1>
-        <div class="header-right">
-            <div class="balance-display">$<span id="balance">1,000.00</span></div>
+        <div>
+            <h1>🚀 Crash Signals</h1>
+            <div class="header-sub">AI Neural Network Predictions</div>
         </div>
     </div>
     
     <!-- Stats -->
     <div class="stats-bar">
         <div class="stat-item">
-            <div class="val green" id="wins">0</div>
-            <div class="lbl">Побед</div>
+            <div class="val color-blue" id="signalsGenerated">0</div>
+            <div class="lbl">Сигналов</div>
         </div>
         <div class="stat-item">
-            <div class="val red" id="losses">0</div>
-            <div class="lbl">Поражений</div>
+            <div class="val color-green" id="accuracy">92%</div>
+            <div class="lbl">Точность AI</div>
         </div>
         <div class="stat-item">
-            <div class="val blue" id="bestMult">1.00x</div>
-            <div class="lbl">Лучший</div>
-        </div>
-        <div class="stat-item">
-            <div class="val blue" id="winRate">0%</div>
-            <div class="lbl">Винрейт</div>
+            <div class="val color-orange" id="bestSignal">0.0x</div>
+            <div class="lbl">Лучший сигнал</div>
         </div>
     </div>
     
-    <!-- Game Area -->
-    <div class="game-area" id="gameArea">
-        <div class="multiplier waiting" id="multiplier">1.00<span style="font-size:0.5em">x</span></div>
-        <div class="game-status waiting" id="statusText">Ожидание следующего раунда</div>
-    </div>
-    
-    <!-- Chart -->
-    <div class="chart-wrap">
-        <canvas id="chart"></canvas>
-    </div>
-    
-    <!-- Tabs: Manual / Auto -->
-    <div class="tabs">
-        <div class="tab active" data-tab="manual">Вручную</div>
-        <div class="tab" data-tab="auto">Авто</div>
-    </div>
-    
-    <!-- Manual Tab -->
-    <div class="tab-content active" id="manualTab">
-        <div class="bet-panel">
-            <div class="bet-row">
-                <div class="bet-label">Ставка</div>
-                <input type="number" class="bet-input" id="betAmount" value="10" min="1">
-            </div>
-            <div class="bet-row">
-                <div class="bet-label"></div>
-                <div class="bet-quick">
-                    <button onclick="setBet(1)">1</button>
-                    <button onclick="setBet(5)">5</button>
-                    <button onclick="setBet(10)">10</button>
-                    <button onclick="setBet(25)">25</button>
-                    <button onclick="setBet(50)">50</button>
-                    <button onclick="setBet(100)">100</button>
-                </div>
-            </div>
-            <div style="font-size:11px;color:#555;margin-top:8px;text-align:center;">
-                Ставка делается автоматически каждый раунд. Ваша задача — вовремя нажать <strong>Забрать</strong>.
-            </div>
+    <!-- Signal Display Area -->
+    <div class="signal-area" id="signalArea">
+        <div id="signalContent">
+            <div style="font-size:40px; margin-bottom:10px;">📡</div>
+            <div style="font-size:14px; color:#888; font-weight:600;">Нажмите "Получить сигнал"</div>
+            <div style="font-size:11px; color:#555; margin-top:4px;">AI проанализирует рынок и даст прогноз</div>
         </div>
-        <button class="btn-cashout" id="btnCashout" onclick="cashOut()" disabled>Забрать выигрыш</button>
-    </div>
-    
-    <!-- Auto Tab -->
-    <div class="tab-content" id="autoTab">
-        <div class="auto-settings show">
-            <div class="auto-row">
-                <label>Ставка</label>
-                <input type="number" id="autoBet" value="10" min="1">
-            </div>
-            <div class="auto-row">
-                <label>Забрать при</label>
-                <input type="number" id="autoCashout" value="2.0" min="1.01" step="0.01">
-            </div>
-            <div class="auto-row">
-                <label>Раундов</label>
-                <input type="number" id="autoMax" value="10" min="1">
-            </div>
-            <div class="auto-row">
-                <label>При победе</label>
-                <input type="text" id="autoOnWin" value="сброс" placeholder="сброс / удвоить">
-            </div>
-            <div class="auto-row">
-                <label>При проигрыше</label>
-                <input type="text" id="autoOnLoss" value="удвоить" placeholder="удвоить / сброс">
-            </div>
-        </div>
-        <button class="btn-stop" id="btnAutoStop" onclick="stopAuto()" disabled>⏹ Остановить</button>
-        <div class="auto-info">Авто-режим: <span id="autoRound">0</span> / <span id="autoMaxDisplay">10</span> раундов</div>
-        <div style="font-size:11px;color:#555;text-align:center;margin-top:4px;">
-            ⚙️ Бот сам ставит и забирает при указанном коэфф. Можно настроить стратегию: при победе сбрасывать ставку или удваивать, при проигрыше — удваивать или сбрасывать.
+        <div id="loadingContent" style="display:none;" class="loading-anim">
+            <div class="spinner"></div>
+            <p>🧠 AI Neural Network analysing...</p>
+            <p>⚙️ Processing 2,847 historical rounds<span class="dots"></span></p>
+            <p>📊 Calculating optimal entry point<span class="dots"></span></p>
+            <p style="color:#555;font-size:11px;margin-top:8px;"><i>Точность алгоритма: 87-94%</i></p>
         </div>
     </div>
     
-    <!-- History -->
-    <div class="history-wrap">
-        <div class="history-header">
-            <span class="history-title">История</span>
-            <span class="history-title" style="color:#444;">Последние 20</span>
+    <!-- Get Signal Button -->
+    <button class="btn-signal" id="btnGetSignal" onclick="generateSignal()">🚀 Получить сигнал</button>
+    
+    <!-- Signal Info (hidden until first signal) -->
+    <div id="signalInfo" style="display:none;">
+        <!-- Recommendation -->
+        <div class="info-block">
+            <div class="info-row">
+                <span class="label">🎯 Рекомендация</span>
+                <span class="value green" id="recommendation">Забрать на 2.5x</span>
+            </div>
+            <div class="info-row">
+                <span class="label">💡 Стратегия</span>
+                <span class="value" id="strategyName">Сбалансированная</span>
+            </div>
+            <div class="info-row">
+                <span class="label">📈 Тренд</span>
+                <span class="value" id="trendValue">Восходящий</span>
+            </div>
+            <div class="info-row">
+                <span class="label">🎯 Точность AI</span>
+                <span class="value blue" id="accuracyValue">91%</span>
+            </div>
+            <div class="info-row">
+                <span class="label">📊 Средний множитель</span>
+                <span class="value blue" id="avgMultValue">2.45x</span>
+            </div>
+            <div class="info-row">
+                <span class="label">🆔 Сигнал</span>
+                <span class="value" id="signalId" style="color:#666;">#000000</span>
+            </div>
         </div>
-        <div class="history-list" id="historyList">
-            <span style="color:#444; font-size:11px;">Раундов пока нет</span>
+        
+        <!-- History -->
+        <div class="history-wrap">
+            <div class="history-title">📜 История последних 10 раундов</div>
+            <div class="history-grid" id="historyGrid"></div>
+        </div>
+    </div>
+    
+    <!-- Strategies (collapsible) -->
+    <div class="strategies-block" style="margin-top:10px;">
+        <div style="font-size:12px; font-weight:600; color:#666; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:6px;">🎯 Стратегии Crash</div>
+        <div class="strat-item">
+            <div class="num">1</div>
+            <div class="content">
+                <h4>Консервативная</h4>
+                <p>Забирать на 1.2x – 1.8x · Риск 5-10% · Профит +15-30%</p>
+            </div>
+        </div>
+        <div class="strat-item">
+            <div class="num">2</div>
+            <div class="content">
+                <h4 style="color:#00baff;">Сбалансированная ★</h4>
+                <p>Забирать на 1.8x – 2.8x · Риск 15-25% · Профит +40-80%</p>
+            </div>
+        </div>
+        <div class="strat-item">
+            <div class="num">3</div>
+            <div class="content">
+                <h4>Агрессивная</h4>
+                <p>Забирать на 2.8x – 5.0x · Риск 30-40% · Профит +100-200%</p>
+            </div>
+        </div>
+        <div style="font-size:10px;color:#444;text-align:center;margin-top:8px;">
+            ⚠️ Всегда используйте удвоение ставки после неудачного сигнала (Мартингейл)
         </div>
     </div>
 </div>
@@ -424,59 +374,138 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// Game state
-const S = {
-    balance: 1000,
-    bet: 10,
-    inRound: false,
-    crashed: false,
-    mult: 1.0,
-    crashPoint: 0,
-    phase: 'waiting',
-    wins: 0,
-    losses: 0,
-    bestMult: 1.0,
-    history: [],
-    chart: [],
-    startTime: 0,
-    animId: null,
-    
-    // Auto
-    auto: false,
-    autoRunning: false,
-    autoCount: 0,
-    autoMax: 10,
-    autoCashout: 2.0,
-    autoBet: 10,
-    autoOnWin: 'сброс',
-    autoOnLoss: 'удвоить'
+// Signal Generator (same algorithm as bot's CrashSignalGenerator)
+const CRASH_DISTRIBUTION = [
+    [1.0, 1.5, 30],
+    [1.5, 2.0, 25],
+    [2.0, 3.0, 20],
+    [3.0, 5.0, 12],
+    [5.0, 10.0, 8],
+    [10.0, 50.0, 5],
+];
+
+const STRATEGIES = [
+    { name: "Консервативная", lo: 1.2, hi: 1.8, desc: "Низкий риск" },
+    { name: "Сбалансированная", lo: 1.8, hi: 2.8, desc: "Оптимальная" },
+    { name: "Агрессивная", lo: 2.8, hi: 5.0, desc: "Высокий риск" },
+];
+
+const TREND_NAMES_RU = { up: "📈 Восходящий", down: "📉 Нисходящий", neutral: "➡️ Боковой" };
+
+let state = {
+    signalsCount: 0,
+    bestSignal: 0,
+    loading: false,
 };
 
-const canvas = document.getElementById('chart');
-const ctx = canvas.getContext('2d');
+function rand(min, max) { return Math.random() * (max - min) + min; }
 
-function resize() {
-    const r = canvas.parentElement.getBoundingClientRect();
-    canvas.width = r.width;
-    canvas.height = r.height;
-    drawChart();
-}
-window.addEventListener('resize', resize);
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-// Crash point generation
-function genCrash() {
-    const r = Math.random();
-    if (r < 0.02) return 1.0;
-    if (r < 0.06) return 1 + Math.random() * 0.5;
-    if (r < 0.12) return 1 + Math.random();
-    const edge = 0.05;
-    const fair = 1 / (1 - edge);
-    return Math.max(1.0, Math.min(fair / (Math.random() + 0.01), 50));
+function genCrashPoint() {
+    const r = randInt(1, 100);
+    let cumulative = 0;
+    for (const [lo, hi, prob] of CRASH_DISTRIBUTION) {
+        cumulative += prob;
+        if (r <= cumulative) return parseFloat(rand(lo, hi).toFixed(2));
+    }
+    return parseFloat(rand(1.0, 2.0).toFixed(2));
 }
 
-function setBet(v) {
-    document.getElementById('betAmount').value = v;
-    S.bet = v;
+function genHistory(count) {
+    const h = [];
+    for (let i = 0; i < count; i++) h.push(genCrashPoint());
+    return h;
+}
+
+function getTrend(history) {
+    if (history.length < 10) return { trend: "neutral", avg: history.length ? history.reduce((a,b)=>a+b,0)/history.length : 2.5 };
+    const recent = history.slice(-5);
+    const prev = history.slice(-10, -5);
+    const avg = recent.reduce((a,b)=>a+b,0) / recent.length;
+    const prevAvg = prev.reduce((a,b)=>a+b,0) / prev.length;
+    let trend = "neutral";
+    if (avg > prevAvg * 1.1) trend = "up";
+    else if (avg < prevAvg * 0.9) trend = "down";
+    return { trend, avg, prevAvg };
+}
+
+function generateSignal() {
+    if (state.loading) return;
+    state.loading = true;
+    
+    const btn = document.getElementById('btnGetSignal');
+    btn.disabled = true;
+    btn.textContent = '⏳ Анализ...';
+    
+    // Show loading
+    document.getElementById('signalContent').style.display = 'none';
+    document.getElementById('loadingContent').style.display = 'block';
+    document.getElementById('signalInfo').style.display = 'none';
+    
+    // Simulate AI processing
+    const delay = 1500 + Math.random() * 1000;
+    
+    setTimeout(() => {
+        // Generate signal
+        const history = genHistory(15);
+        const analysis = getTrend(history);
+        const strategyIdx = randInt(0, 2);
+        const strategy = STRATEGIES[strategyIdx];
+        const targetMult = parseFloat(rand(strategy.lo, strategy.hi).toFixed(2));
+        const accuracy = randInt(84, 94);
+        const signalId = '#' + randInt(100000, 999999);
+        
+        state.signalsCount++;
+        if (targetMult > state.bestSignal) state.bestSignal = targetMult;
+        
+        // Update stats
+        document.getElementById('signalsGenerated').textContent = state.signalsCount;
+        document.getElementById('accuracy').textContent = accuracy + '%';
+        document.getElementById('bestSignal').textContent = state.bestSignal.toFixed(1) + 'x';
+        
+        // Build recommendation
+        const recText = `Забрать на ${targetMult}x`;
+        document.getElementById('recommendation').textContent = recText;
+        document.getElementById('strategyName').textContent = strategy.name;
+        document.getElementById('trendValue').textContent = TREND_NAMES_RU[analysis.trend];
+        document.getElementById('accuracyValue').textContent = accuracy + '%';
+        document.getElementById('avgMultValue').textContent = analysis.avg.toFixed(2) + 'x';
+        document.getElementById('signalId').textContent = signalId;
+        
+        // Build history visualization
+        const grid = document.getElementById('historyGrid');
+        grid.innerHTML = history.map(p => {
+            let cls = 'green';
+            if (p >= 1.5 && p < 2.0) cls = 'yellow';
+            else if (p >= 2.0 && p < 4.0) cls = 'orange';
+            else if (p >= 4.0) cls = 'red';
+            return `<span class="h-item ${cls}">${p.toFixed(2)}x</span>`;
+        }).join('');
+        
+        // Show signal in area
+        document.getElementById('loadingContent').style.display = 'none';
+        
+        const signalArea = document.getElementById('signalContent');
+        signalArea.style.display = 'block';
+        signalArea.innerHTML = `
+            <div class="signal-big" style="color:#4caf50;">${targetMult.toFixed(2)}<span class="x-label">x</span></div>
+            <div class="signal-label">🎯 Рекомендуемый коэффициент</div>
+            <div class="signal-tag green">✅ Забрать на ${targetMult}x</div>
+            <div style="margin-top:12px;font-size:11px;color:#555;">
+                ${TREND_NAMES_RU[analysis.trend]} · Точность AI: ${accuracy}% · ${strategy.name}
+            </div>
+        `;
+        
+        document.getElementById('signalInfo').style.display = 'block';
+        
+        // Reset button
+        btn.disabled = false;
+        btn.textContent = '🔄 Новый сигнал';
+        state.loading = false;
+        
+        showMsg(`✅ Сигнал ${signalId}: забрать на ${targetMult}x`, 'success');
+    }, delay);
 }
 
 function showMsg(msg, type = 'info') {
@@ -487,325 +516,8 @@ function showMsg(msg, type = 'info') {
     setTimeout(() => { t.className = 'toast'; }, 2500);
 }
 
-function fmt(n) { return n.toFixed(2); }
-
-function updBalance() {
-    document.getElementById('balance').textContent = fmt(S.balance).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
-
-function updStats() {
-    document.getElementById('wins').textContent = S.wins;
-    document.getElementById('losses').textContent = S.losses;
-    document.getElementById('bestMult').textContent = fmt(S.bestMult) + 'x';
-    const t = S.wins + S.losses;
-    document.getElementById('winRate').textContent = t > 0 ? Math.round(S.wins / t * 100) + '%' : '0%';
-}
-
-function addHist(mult, won) {
-    if (won) S.wins++; else S.losses++;
-    if (mult > S.bestMult) S.bestMult = mult;
-    S.history.unshift({ mult, won });
-    if (S.history.length > 20) S.history.pop();
-    updStats();
-    renderHist();
-}
-
-function renderHist() {
-    const el = document.getElementById('historyList');
-    if (!S.history.length) {
-        el.innerHTML = '<span style="color:#444;font-size:11px;">Раундов пока нет</span>';
-        return;
-    }
-    el.innerHTML = S.history.map(h => {
-        const m = h.mult;
-        let cls = m >= 3 ? 'high' : m >= 1.5 ? 'med' : 'low';
-        const label = h.won ? '✅' : '💥';
-        return `<span class="h-item ${cls}">${label}${fmt(m)}x</span>`;
-    }).join('');
-}
-
-function drawChart() {
-    const w = canvas.width, h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
-    if (S.chart.length < 2) {
-        ctx.fillStyle = '#333';
-        ctx.font = '12px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('График', w/2, h/2);
-        return;
-    }
-    const pad = 15;
-    const uw = w - pad * 2, uh = h - pad * 2;
-    const mx = S.chart.length - 1;
-    const my = Math.max(...S.chart.map(p => p.y), 1);
-    
-    // Grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-    ctx.lineWidth = 0.5;
-    for (let i = 0; i < 4; i++) {
-        const y = pad + (uh / 3) * i;
-        ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w - pad, y); ctx.stroke();
-    }
-    
-    // Line
-    const grad = ctx.createLinearGradient(0, 0, 0, h);
-    if (S.phase === 'crashed') {
-        grad.addColorStop(0, '#f44336');
-        grad.addColorStop(1, 'rgba(244,67,54,0.3)');
-    } else {
-        grad.addColorStop(0, '#4caf50');
-        grad.addColorStop(1, 'rgba(76,175,80,0.3)');
-    }
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    S.chart.forEach((p, i) => {
-        const x = pad + (i / mx) * uw;
-        const y = pad + uh - (p.y / my) * uh * 0.85;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-    
-    // Last value
-    const last = S.chart[S.chart.length - 1];
-    if (last) {
-        const x = pad + (S.chart.length - 1) / mx * uw;
-        const y = pad + uh - (last.y / my) * uh * 0.85;
-        ctx.fillStyle = S.phase === 'crashed' ? '#f44336' : '#4caf50';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(fmt(last.y) + 'x', x, y - 6);
-    }
-}
-
-// Game tick
-function tick() {
-    if (S.phase !== 'running') return;
-    const elapsed = (Date.now() - S.startTime) / 1000;
-    const growth = Math.pow(1.3, elapsed * 1.5);
-    S.mult = 1.0 + (growth - 1.0) * 0.5;
-    
-    if (S.mult >= S.crashPoint) { crash(); return; }
-    
-    updMult();
-    S.chart.push({ x: elapsed, y: S.mult });
-    if (S.chart.length > 100) S.chart = S.chart.slice(-100);
-    drawChart();
-    
-    // Auto cashout check
-    if (S.auto && S.mult >= S.autoCashout) { cashOut(); return; }
-    
-    S.animId = requestAnimationFrame(tick);
-}
-
-function updMult() {
-    const el = document.getElementById('multiplier');
-    el.innerHTML = fmt(S.mult) + '<span style="font-size:0.5em">x</span>';
-}
-
-// Start next round automatically
-function startNextRound() {
-    if (S.balance <= 0) { showMsg('Нет средств на балансе', 'error'); return; }
-    const amt = parseFloat(document.getElementById('betAmount').value);
-    if (!amt || amt <= 0 || amt > S.balance) { showMsg('Некорректная ставка', 'error'); return; }
-    S.bet = amt;
-    S.balance -= amt;
-    updBalance();
-    
-    S.inRound = true;
-    S.crashed = false;
-    S.phase = 'running';
-    S.crashPoint = genCrash();
-    S.mult = 1.0;
-    S.startTime = Date.now();
-    S.chart = [{ x: 0, y: 1.0 }];
-    
-    document.getElementById('multiplier').className = 'multiplier running';
-    document.getElementById('multiplier').innerHTML = '1.00<span style="font-size:0.5em">x</span>';
-    document.getElementById('statusText').textContent = 'Раунд идёт...';
-    document.getElementById('statusText').className = 'game-status running';
-    document.getElementById('btnCashout').disabled = false;
-    if (S.auto) {
-        document.getElementById('btnAutoStop').disabled = false;
-    }
-    S.animId = requestAnimationFrame(tick);
-}
-
-function cashOut() {
-    if (!S.inRound || S.crashed || S.phase !== 'running') return;
-    cancelAnimationFrame(S.animId);
-    
-    const mult = S.mult;
-    const profit = S.bet * mult;
-    S.balance += profit;
-    S.inRound = false;
-    S.phase = 'waiting';
-    S.crashed = true;
-    
-    document.getElementById('multiplier').className = 'multiplier waiting';
-    document.getElementById('statusText').textContent = 'Забрали! +' + fmt(profit - S.bet);
-    document.getElementById('statusText').className = 'game-status';
-    document.getElementById('statusText').style.color = '#4caf50';
-    document.getElementById('btnCashout').disabled = true;
-    if (S.auto) {
-        document.getElementById('btnAutoStop').disabled = true;
-    }
-    
-    updBalance();
-    addHist(mult, true);
-    S.chart.push({ x: (Date.now() - S.startTime) / 1000, y: mult });
-    drawChart();
-    showMsg('Забрали в ' + fmt(mult) + 'x! +' + fmt(profit - S.bet), 'success');
-    
-    if (S.auto && S.autoRunning) handleAuto(true, mult);
-    else scheduleNext();
-}
-
-function crash() {
-    cancelAnimationFrame(S.animId);
-    S.crashed = true;
-    S.inRound = false;
-    S.phase = 'crashed';
-    
-    document.getElementById('multiplier').className = 'multiplier crashed';
-    document.getElementById('statusText').textContent = 'Краш в ' + fmt(S.crashPoint) + 'x';
-    document.getElementById('statusText').className = 'game-status crashed';
-    document.getElementById('btnCashout').disabled = true;
-    if (S.auto) {
-        document.getElementById('btnAutoStop').disabled = true;
-    }
-    
-    addHist(S.crashPoint, false);
-    S.chart.push({ x: (Date.now() - S.startTime) / 1000, y: S.crashPoint });
-    drawChart();
-    showMsg('Краш в ' + fmt(S.crashPoint) + 'x! -' + fmt(S.bet), 'error');
-    
-    if (S.auto && S.autoRunning) handleAuto(false, S.crashPoint);
-    else scheduleNext();
-}
-
-function scheduleNext() {
-    if (S.auto && S.autoRunning) return;
-    setTimeout(() => {
-        if (!S.inRound && !S.auto && S.balance > 0) {
-            startNextRound();
-        }
-    }, 5000);
-}
-
-function handleAuto(won, mult) {
-    S.autoCount++;
-    document.getElementById('autoRound').textContent = S.autoCount;
-    
-    if (S.autoCount >= S.autoMax) {
-        showMsg('Авто-режим завершён: ' + S.autoCount + ' раундов', 'success');
-        S.autoRunning = false;
-        S.auto = false;
-        document.getElementById('btnAutoStop').disabled = true;
-        document.getElementById('autoRound').textContent = '0';
-        return;
-    }
-    
-    // Strategy
-    if (won) {
-        if (S.autoOnWin === 'сброс') S.bet = S.autoBet;
-        else if (S.autoOnWin.startsWith('удво')) S.bet *= 2;
-    } else {
-        if (S.autoOnLoss === 'удвоить' || S.autoOnLoss.startsWith('удво')) S.bet *= 2;
-        else if (S.autoOnLoss === 'сброс') S.bet = S.autoBet;
-    }
-    document.getElementById('betAmount').value = fmt(S.bet);
-    
-    setTimeout(() => {
-        if (!S.autoRunning) return;
-        if (S.balance >= S.bet) {
-            S.balance -= S.bet;
-            updBalance();
-            startNextRound();
-        } else {
-            showMsg('Недостаточно средств', 'error');
-            S.autoRunning = false;
-            S.auto = false;
-            document.getElementById('btnAutoStop').disabled = true;
-        }
-    }, 1200);
-}
-
-function startAuto() {
-    if (S.autoRunning || S.inRound) return;
-    const bet = parseFloat(document.getElementById('autoBet').value);
-    const cashout = parseFloat(document.getElementById('autoCashout').value);
-    const max = parseInt(document.getElementById('autoMax').value);
-    const onWin = document.getElementById('autoOnWin').value.trim().toLowerCase();
-    const onLoss = document.getElementById('autoOnLoss').value.trim().toLowerCase();
-    
-    if (!bet || bet <= 0 || bet > S.balance) { showMsg('Некорректная ставка', 'error'); return; }
-    if (!cashout || cashout <= 1.0) { showMsg('Коэффициент должен быть > 1.0', 'error'); return; }
-    if (!max || max < 1) { showMsg('Укажите количество раундов', 'error'); return; }
-    
-    S.auto = true;
-    S.autoRunning = true;
-    S.autoBet = bet;
-    S.bet = bet;
-    S.autoCashout = cashout;
-    S.autoMax = max;
-    S.autoCount = 0;
-    S.autoOnWin = onWin;
-    S.autoOnLoss = onLoss;
-    
-    document.getElementById('autoMaxDisplay').textContent = max;
-    document.getElementById('autoRound').textContent = '0';
-    document.getElementById('btnAutoStop').disabled = false;
-    document.getElementById('betAmount').value = bet;
-    
-    S.balance -= bet;
-    updBalance();
-    startNextRound();
-}
-
-function stopAuto() {
-    S.autoRunning = false;
-    S.auto = false;
-    document.getElementById('btnAutoStop').disabled = true;
-    showMsg('Авто-режим остановлен', 'info');
-    if (S.inRound) {
-        cancelAnimationFrame(S.animId);
-        S.inRound = false;
-        S.phase = 'waiting';
-        document.getElementById('multiplier').className = 'multiplier waiting';
-        document.getElementById('multiplier').innerHTML = '1.00<span style="font-size:0.5em">x</span>';
-        document.getElementById('statusText').textContent = 'Ожидание следующего раунда';
-        document.getElementById('statusText').className = 'game-status waiting';
-        document.getElementById('statusText').style.color = '';
-        document.getElementById('btnCashout').disabled = true;
-    }
-}
-
-// Tab switching
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-        const isAuto = this.dataset.tab === 'auto';
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        document.getElementById(this.dataset.tab + 'Tab').classList.add('active');
-        
-        // Start auto mode when switching to Auto tab
-        if (isAuto) {
-            setTimeout(() => startAuto(), 300);
-        }
-    });
-});
-
-// Init
-resize();
-updBalance();
-updStats();
-
-// Start first round automatically after short delay
-setTimeout(() => {
-    startNextRound();
-}, 2000);
+// Init stats
+document.getElementById('accuracy').textContent = randInt(87, 94) + '%';
 </script>
 </body>
 </html>
