@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -17,7 +17,6 @@
         }
         .container { max-width: 420px; margin: 0 auto; padding: 10px; }
         
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -31,7 +30,6 @@
         .balance-display { font-size: 16px; font-weight: 700; color: #00baff; }
         .balance-display span { font-size: 12px; color: #666; font-weight: 400; }
         
-        /* Stats bar */
         .stats-bar {
             display: flex;
             gap: 8px;
@@ -50,7 +48,6 @@
         .stat-item .val.red { color: #f44336; }
         .stat-item .val.blue { color: #00baff; }
         
-        /* Multiplier section - the main game area */
         .game-area {
             background: #111;
             border-radius: 12px;
@@ -100,7 +97,6 @@
         .game-status.running { color: #4caf50; }
         .game-status.crashed { color: #f44336; }
         
-        /* Chart */
         .chart-wrap {
             background: #111;
             border-radius: 12px;
@@ -111,7 +107,6 @@
         }
         #chart { width: 100%; height: 100%; display: block; }
         
-        /* Bet controls */
         .bet-panel {
             background: #1a1a1a;
             border-radius: 12px;
@@ -155,7 +150,6 @@
         }
         .bet-quick button:hover { border-color: #00baff; color: #00baff; }
         
-        /* Cash Out button - full width */
         .btn-cashout {
             width: 100%;
             padding: 16px;
@@ -190,7 +184,6 @@
         .btn-stop:hover { filter: brightness(1.1); }
         .btn-stop:disabled { opacity: 0.3; filter: none; cursor: not-allowed; }
         
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 4px;
@@ -219,7 +212,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        /* Auto settings */
         .auto-settings {
             display: none;
             background: #1a1a1a;
@@ -248,7 +240,6 @@
         .auto-row input:focus { border-color: #00baff; }
         .auto-info { font-size: 11px; color: #555; text-align: center; margin-top: 6px; }
         
-        /* History */
         .history-wrap {
             background: #1a1a1a;
             border-radius: 12px;
@@ -281,7 +272,6 @@
             to { opacity: 1; transform: scale(1); }
         }
         
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -322,7 +312,7 @@
     <div class="header">
         <h1>Crash</h1>
         <div class="header-right">
-            <div class="balance-display"><span>$</span> <span id="balance">1,000.00</span></div>
+            <div class="balance-display">$<span id="balance">1,000.00</span></div>
         </div>
     </div>
     
@@ -330,26 +320,26 @@
     <div class="stats-bar">
         <div class="stat-item">
             <div class="val green" id="wins">0</div>
-            <div class="lbl">Wins</div>
+            <div class="lbl">Побед</div>
         </div>
         <div class="stat-item">
             <div class="val red" id="losses">0</div>
-            <div class="lbl">Losses</div>
+            <div class="lbl">Поражений</div>
         </div>
         <div class="stat-item">
             <div class="val blue" id="bestMult">1.00x</div>
-            <div class="lbl">Best</div>
+            <div class="lbl">Лучший</div>
         </div>
         <div class="stat-item">
             <div class="val blue" id="winRate">0%</div>
-            <div class="lbl">Win Rate</div>
+            <div class="lbl">Винрейт</div>
         </div>
     </div>
     
     <!-- Game Area -->
     <div class="game-area" id="gameArea">
         <div class="multiplier waiting" id="multiplier">1.00<span style="font-size:0.5em">x</span></div>
-        <div class="game-status waiting" id="statusText">Waiting for next round</div>
+        <div class="game-status waiting" id="statusText">Ожидание следующего раунда</div>
     </div>
     
     <!-- Chart -->
@@ -357,17 +347,17 @@
         <canvas id="chart"></canvas>
     </div>
     
-    <!-- Tabs -->
+    <!-- Tabs: Manual / Auto -->
     <div class="tabs">
-        <div class="tab active" data-tab="manual">Manual</div>
-        <div class="tab" data-tab="auto">Auto</div>
+        <div class="tab active" data-tab="manual">Вручную</div>
+        <div class="tab" data-tab="auto">Авто</div>
     </div>
     
     <!-- Manual Tab -->
     <div class="tab-content active" id="manualTab">
         <div class="bet-panel">
             <div class="bet-row">
-                <div class="bet-label">Bet</div>
+                <div class="bet-label">Ставка</div>
                 <input type="number" class="bet-input" id="betAmount" value="10" min="1">
             </div>
             <div class="bet-row">
@@ -381,46 +371,52 @@
                     <button onclick="setBet(100)">100</button>
                 </div>
             </div>
+            <div style="font-size:11px;color:#555;margin-top:8px;text-align:center;">
+                Ставка делается автоматически каждый раунд. Ваша задача — вовремя нажать <strong>Забрать</strong>.
+            </div>
         </div>
-        <button class="btn-cashout" id="btnCashout" onclick="cashOut()" disabled>Cash Out</button>
+        <button class="btn-cashout" id="btnCashout" onclick="cashOut()" disabled>Забрать выигрыш</button>
     </div>
     
     <!-- Auto Tab -->
     <div class="tab-content" id="autoTab">
         <div class="auto-settings show">
             <div class="auto-row">
-                <label>Bet Amount</label>
+                <label>Ставка</label>
                 <input type="number" id="autoBet" value="10" min="1">
             </div>
             <div class="auto-row">
-                <label>Auto Cashout</label>
+                <label>Забрать при</label>
                 <input type="number" id="autoCashout" value="2.0" min="1.01" step="0.01">
             </div>
             <div class="auto-row">
-                <label>Max Rounds</label>
+                <label>Раундов</label>
                 <input type="number" id="autoMax" value="10" min="1">
             </div>
             <div class="auto-row">
-                <label>On Win</label>
-                <input type="text" id="autoOnWin" value="reset" placeholder="reset / double">
+                <label>При победе</label>
+                <input type="text" id="autoOnWin" value="сброс" placeholder="сброс / удвоить">
             </div>
             <div class="auto-row">
-                <label>On Loss</label>
-                <input type="text" id="autoOnLoss" value="double" placeholder="double / reset">
+                <label>При проигрыше</label>
+                <input type="text" id="autoOnLoss" value="удвоить" placeholder="удвоить / сброс">
             </div>
         </div>
-        <button class="btn-stop" id="btnAutoStop" onclick="stopAuto()" disabled>Stop</button>
-        <div class="auto-info">Auto: <span id="autoRound">0</span> / <span id="autoMaxDisplay">10</span> rounds</div>
+        <button class="btn-stop" id="btnAutoStop" onclick="stopAuto()" disabled>⏹ Остановить</button>
+        <div class="auto-info">Авто-режим: <span id="autoRound">0</span> / <span id="autoMaxDisplay">10</span> раундов</div>
+        <div style="font-size:11px;color:#555;text-align:center;margin-top:4px;">
+            ⚙️ Бот сам ставит и забирает при указанном коэфф. Можно настроить стратегию: при победе сбрасывать ставку или удваивать, при проигрыше — удваивать или сбрасывать.
+        </div>
     </div>
     
     <!-- History -->
     <div class="history-wrap">
         <div class="history-header">
-            <span class="history-title">History</span>
-            <span class="history-title" style="color:#444;">Last 20</span>
+            <span class="history-title">История</span>
+            <span class="history-title" style="color:#444;">Последние 20</span>
         </div>
         <div class="history-list" id="historyList">
-            <span style="color:#444; font-size:11px;">No rounds yet</span>
+            <span style="color:#444; font-size:11px;">Раундов пока нет</span>
         </div>
     </div>
 </div>
@@ -452,8 +448,8 @@ const S = {
     autoMax: 10,
     autoCashout: 2.0,
     autoBet: 10,
-    autoOnWin: 'reset',
-    autoOnLoss: 'double'
+    autoOnWin: 'сброс',
+    autoOnLoss: 'удвоить'
 };
 
 const canvas = document.getElementById('chart');
@@ -517,14 +513,14 @@ function addHist(mult, won) {
 function renderHist() {
     const el = document.getElementById('historyList');
     if (!S.history.length) {
-        el.innerHTML = '<span style="color:#444;font-size:11px;">No rounds yet</span>';
+        el.innerHTML = '<span style="color:#444;font-size:11px;">Раундов пока нет</span>';
         return;
     }
     el.innerHTML = S.history.map(h => {
         const m = h.mult;
         let cls = m >= 3 ? 'high' : m >= 1.5 ? 'med' : 'low';
-        const icon = h.won ? '✅' : '💥';
-        return `<span class="h-item ${cls}">${icon}${fmt(m)}x</span>`;
+        const label = h.won ? '✅' : '💥';
+        return `<span class="h-item ${cls}">${label}${fmt(m)}x</span>`;
     }).join('');
 }
 
@@ -535,7 +531,7 @@ function drawChart() {
         ctx.fillStyle = '#333';
         ctx.font = '12px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Chart', w/2, h/2);
+        ctx.fillText('График', w/2, h/2);
         return;
     }
     const pad = 15;
@@ -607,11 +603,11 @@ function updMult() {
     el.innerHTML = fmt(S.mult) + '<span style="font-size:0.5em">x</span>';
 }
 
-// Auto-bet: placed before every round, no "Bet" button needed
+// Start next round automatically
 function startNextRound() {
-    if (S.balance <= 0) { showMsg('No balance', 'error'); return; }
+    if (S.balance <= 0) { showMsg('Нет средств на балансе', 'error'); return; }
     const amt = parseFloat(document.getElementById('betAmount').value);
-    if (!amt || amt <= 0 || amt > S.balance) { showMsg('Invalid bet amount', 'error'); return; }
+    if (!amt || amt <= 0 || amt > S.balance) { showMsg('Некорректная ставка', 'error'); return; }
     S.bet = amt;
     S.balance -= amt;
     updBalance();
@@ -626,7 +622,7 @@ function startNextRound() {
     
     document.getElementById('multiplier').className = 'multiplier running';
     document.getElementById('multiplier').innerHTML = '1.00<span style="font-size:0.5em">x</span>';
-    document.getElementById('statusText').textContent = 'Running...';
+    document.getElementById('statusText').textContent = 'Раунд идёт...';
     document.getElementById('statusText').className = 'game-status running';
     document.getElementById('btnCashout').disabled = false;
     if (S.auto) {
@@ -647,7 +643,7 @@ function cashOut() {
     S.crashed = true;
     
     document.getElementById('multiplier').className = 'multiplier waiting';
-    document.getElementById('statusText').textContent = 'Cashed Out! +' + fmt(profit - S.bet);
+    document.getElementById('statusText').textContent = 'Забрали! +' + fmt(profit - S.bet);
     document.getElementById('statusText').className = 'game-status';
     document.getElementById('statusText').style.color = '#4caf50';
     document.getElementById('btnCashout').disabled = true;
@@ -659,7 +655,7 @@ function cashOut() {
     addHist(mult, true);
     S.chart.push({ x: (Date.now() - S.startTime) / 1000, y: mult });
     drawChart();
-    showMsg('Cashed out at ' + fmt(mult) + 'x! +' + fmt(profit - S.bet), 'success');
+    showMsg('Забрали в ' + fmt(mult) + 'x! +' + fmt(profit - S.bet), 'success');
     
     if (S.auto && S.autoRunning) handleAuto(true, mult);
     else scheduleNext();
@@ -672,7 +668,7 @@ function crash() {
     S.phase = 'crashed';
     
     document.getElementById('multiplier').className = 'multiplier crashed';
-    document.getElementById('statusText').textContent = 'Crashed at ' + fmt(S.crashPoint) + 'x';
+    document.getElementById('statusText').textContent = 'Краш в ' + fmt(S.crashPoint) + 'x';
     document.getElementById('statusText').className = 'game-status crashed';
     document.getElementById('btnCashout').disabled = true;
     if (S.auto) {
@@ -682,14 +678,14 @@ function crash() {
     addHist(S.crashPoint, false);
     S.chart.push({ x: (Date.now() - S.startTime) / 1000, y: S.crashPoint });
     drawChart();
-    showMsg('Crashed at ' + fmt(S.crashPoint) + 'x! -' + fmt(S.bet), 'error');
+    showMsg('Краш в ' + fmt(S.crashPoint) + 'x! -' + fmt(S.bet), 'error');
     
     if (S.auto && S.autoRunning) handleAuto(false, S.crashPoint);
     else scheduleNext();
 }
 
 function scheduleNext() {
-    if (S.auto && S.autoRunning) return; // auto handles its own schedule
+    if (S.auto && S.autoRunning) return;
     setTimeout(() => {
         if (!S.inRound && !S.auto && S.balance > 0) {
             startNextRound();
@@ -702,7 +698,7 @@ function handleAuto(won, mult) {
     document.getElementById('autoRound').textContent = S.autoCount;
     
     if (S.autoCount >= S.autoMax) {
-        showMsg('Auto complete: ' + S.autoCount + ' rounds', 'success');
+        showMsg('Авто-режим завершён: ' + S.autoCount + ' раундов', 'success');
         S.autoRunning = false;
         S.auto = false;
         document.getElementById('btnAutoStop').disabled = true;
@@ -712,11 +708,11 @@ function handleAuto(won, mult) {
     
     // Strategy
     if (won) {
-        if (S.autoOnWin === 'reset') S.bet = S.autoBet;
-        else if (S.autoOnWin.startsWith('double')) S.bet *= 2;
+        if (S.autoOnWin === 'сброс') S.bet = S.autoBet;
+        else if (S.autoOnWin.startsWith('удво')) S.bet *= 2;
     } else {
-        if (S.autoOnLoss === 'double') S.bet *= 2;
-        else if (S.autoOnLoss === 'reset') S.bet = S.autoBet;
+        if (S.autoOnLoss === 'удвоить' || S.autoOnLoss.startsWith('удво')) S.bet *= 2;
+        else if (S.autoOnLoss === 'сброс') S.bet = S.autoBet;
     }
     document.getElementById('betAmount').value = fmt(S.bet);
     
@@ -727,7 +723,7 @@ function handleAuto(won, mult) {
             updBalance();
             startNextRound();
         } else {
-            showMsg('Insufficient balance', 'error');
+            showMsg('Недостаточно средств', 'error');
             S.autoRunning = false;
             S.auto = false;
             document.getElementById('btnAutoStop').disabled = true;
@@ -743,9 +739,9 @@ function startAuto() {
     const onWin = document.getElementById('autoOnWin').value.trim().toLowerCase();
     const onLoss = document.getElementById('autoOnLoss').value.trim().toLowerCase();
     
-    if (!bet || bet <= 0 || bet > S.balance) { showMsg('Invalid bet', 'error'); return; }
-    if (!cashout || cashout <= 1.0) { showMsg('Cashout must be > 1.0', 'error'); return; }
-    if (!max || max < 1) { showMsg('Invalid max rounds', 'error'); return; }
+    if (!bet || bet <= 0 || bet > S.balance) { showMsg('Некорректная ставка', 'error'); return; }
+    if (!cashout || cashout <= 1.0) { showMsg('Коэффициент должен быть > 1.0', 'error'); return; }
+    if (!max || max < 1) { showMsg('Укажите количество раундов', 'error'); return; }
     
     S.auto = true;
     S.autoRunning = true;
@@ -771,14 +767,14 @@ function stopAuto() {
     S.autoRunning = false;
     S.auto = false;
     document.getElementById('btnAutoStop').disabled = true;
-    showMsg('Auto stopped', 'info');
+    showMsg('Авто-режим остановлен', 'info');
     if (S.inRound) {
         cancelAnimationFrame(S.animId);
         S.inRound = false;
         S.phase = 'waiting';
         document.getElementById('multiplier').className = 'multiplier waiting';
         document.getElementById('multiplier').innerHTML = '1.00<span style="font-size:0.5em">x</span>';
-        document.getElementById('statusText').textContent = 'Waiting for next round';
+        document.getElementById('statusText').textContent = 'Ожидание следующего раунда';
         document.getElementById('statusText').className = 'game-status waiting';
         document.getElementById('statusText').style.color = '';
         document.getElementById('btnCashout').disabled = true;
@@ -788,10 +784,16 @@ function stopAuto() {
 // Tab switching
 document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', function() {
+        const isAuto = this.dataset.tab === 'auto';
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         this.classList.add('active');
         document.getElementById(this.dataset.tab + 'Tab').classList.add('active');
+        
+        // Start auto mode when switching to Auto tab
+        if (isAuto) {
+            setTimeout(() => startAuto(), 300);
+        }
     });
 });
 
