@@ -155,44 +155,40 @@
         }
         .bet-quick button:hover { border-color: #00baff; color: #00baff; }
         
-        /* Actions */
-        .actions {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        .actions button {
-            flex: 1;
-            padding: 14px;
+        /* Cash Out button - full width */
+        .btn-cashout {
+            width: 100%;
+            padding: 16px;
             border: none;
             border-radius: 10px;
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 800;
             cursor: pointer;
             transition: all 0.2s;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-        .btn-bet {
             background: linear-gradient(180deg, #00c8ff, #0088cc);
-            color: #000;
-        }
-        .btn-bet:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .btn-bet:disabled { opacity: 0.4; filter: none; transform: none; cursor: not-allowed; }
-        
-        .btn-cashout {
-            background: linear-gradient(180deg, #66bb6a, #43a047);
-            color: #000;
+            color: #fff;
         }
         .btn-cashout:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .btn-cashout:disabled { opacity: 0.4; filter: none; transform: none; cursor: not-allowed; }
+        .btn-cashout:disabled { opacity: 0.3; filter: none; transform: none; cursor: not-allowed; }
         
         .btn-stop {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             background: linear-gradient(180deg, #ef5350, #e53935);
             color: #fff;
         }
         .btn-stop:hover { filter: brightness(1.1); }
-        .btn-stop:disabled { opacity: 0.4; filter: none; cursor: not-allowed; }
+        .btn-stop:disabled { opacity: 0.3; filter: none; cursor: not-allowed; }
         
         /* Tabs */
         .tabs {
@@ -386,10 +382,7 @@
                 </div>
             </div>
         </div>
-        <div class="actions">
-            <button class="btn-bet" id="btnBet" onclick="placeBet()">Bet</button>
-            <button class="btn-cashout" id="btnCashout" onclick="cashOut()" disabled>Cash Out</button>
-        </div>
+        <button class="btn-cashout" id="btnCashout" onclick="cashOut()" disabled>Cash Out</button>
     </div>
     
     <!-- Auto Tab -->
@@ -416,11 +409,8 @@
                 <input type="text" id="autoOnLoss" value="double" placeholder="double / reset">
             </div>
         </div>
-        <div class="actions">
-            <button class="btn-bet" id="btnAutoStart" onclick="startAuto()">▶ Auto</button>
-            <button class="btn-stop" id="btnAutoStop" onclick="stopAuto()" disabled>Stop</button>
-        </div>
-        <div class="auto-info">Round: <span id="autoRound">0</span> / <span id="autoMaxDisplay">10</span></div>
+        <button class="btn-stop" id="btnAutoStop" onclick="stopAuto()" disabled>Stop</button>
+        <div class="auto-info">Auto: <span id="autoRound">0</span> / <span id="autoMaxDisplay">10</span> rounds</div>
     </div>
     
     <!-- History -->
@@ -617,17 +607,15 @@ function updMult() {
     el.innerHTML = fmt(S.mult) + '<span style="font-size:0.5em">x</span>';
 }
 
-function placeBet() {
-    if (S.inRound || S.balance <= 0) return;
+// Auto-bet: placed before every round, no "Bet" button needed
+function startNextRound() {
+    if (S.balance <= 0) { showMsg('No balance', 'error'); return; }
     const amt = parseFloat(document.getElementById('betAmount').value);
-    if (!amt || amt <= 0 || amt > S.balance) { showMsg('Invalid bet', 'error'); return; }
+    if (!amt || amt <= 0 || amt > S.balance) { showMsg('Invalid bet amount', 'error'); return; }
     S.bet = amt;
     S.balance -= amt;
     updBalance();
-    startRound();
-}
-
-function startRound() {
+    
     S.inRound = true;
     S.crashed = false;
     S.phase = 'running';
@@ -637,12 +625,11 @@ function startRound() {
     S.chart = [{ x: 0, y: 1.0 }];
     
     document.getElementById('multiplier').className = 'multiplier running';
+    document.getElementById('multiplier').innerHTML = '1.00<span style="font-size:0.5em">x</span>';
     document.getElementById('statusText').textContent = 'Running...';
     document.getElementById('statusText').className = 'game-status running';
-    document.getElementById('btnBet').disabled = true;
     document.getElementById('btnCashout').disabled = false;
     if (S.auto) {
-        document.getElementById('btnAutoStart').disabled = true;
         document.getElementById('btnAutoStop').disabled = false;
     }
     S.animId = requestAnimationFrame(tick);
@@ -663,10 +650,8 @@ function cashOut() {
     document.getElementById('statusText').textContent = 'Cashed Out! +' + fmt(profit - S.bet);
     document.getElementById('statusText').className = 'game-status';
     document.getElementById('statusText').style.color = '#4caf50';
-    document.getElementById('btnBet').disabled = false;
     document.getElementById('btnCashout').disabled = true;
     if (S.auto) {
-        document.getElementById('btnAutoStart').disabled = false;
         document.getElementById('btnAutoStop').disabled = true;
     }
     
@@ -677,6 +662,7 @@ function cashOut() {
     showMsg('Cashed out at ' + fmt(mult) + 'x! +' + fmt(profit - S.bet), 'success');
     
     if (S.auto && S.autoRunning) handleAuto(true, mult);
+    else scheduleNext();
 }
 
 function crash() {
@@ -688,10 +674,8 @@ function crash() {
     document.getElementById('multiplier').className = 'multiplier crashed';
     document.getElementById('statusText').textContent = 'Crashed at ' + fmt(S.crashPoint) + 'x';
     document.getElementById('statusText').className = 'game-status crashed';
-    document.getElementById('btnBet').disabled = false;
     document.getElementById('btnCashout').disabled = true;
     if (S.auto) {
-        document.getElementById('btnAutoStart').disabled = false;
         document.getElementById('btnAutoStop').disabled = true;
     }
     
@@ -701,6 +685,16 @@ function crash() {
     showMsg('Crashed at ' + fmt(S.crashPoint) + 'x! -' + fmt(S.bet), 'error');
     
     if (S.auto && S.autoRunning) handleAuto(false, S.crashPoint);
+    else scheduleNext();
+}
+
+function scheduleNext() {
+    if (S.auto && S.autoRunning) return; // auto handles its own schedule
+    setTimeout(() => {
+        if (!S.inRound && !S.auto && S.balance > 0) {
+            startNextRound();
+        }
+    }, 5000);
 }
 
 function handleAuto(won, mult) {
@@ -711,8 +705,6 @@ function handleAuto(won, mult) {
         showMsg('Auto complete: ' + S.autoCount + ' rounds', 'success');
         S.autoRunning = false;
         S.auto = false;
-        document.getElementById('btnAutoStart').textContent = '▶ Auto';
-        document.getElementById('btnAutoStart').disabled = false;
         document.getElementById('btnAutoStop').disabled = true;
         document.getElementById('autoRound').textContent = '0';
         return;
@@ -733,20 +725,18 @@ function handleAuto(won, mult) {
         if (S.balance >= S.bet) {
             S.balance -= S.bet;
             updBalance();
-            startRound();
+            startNextRound();
         } else {
             showMsg('Insufficient balance', 'error');
             S.autoRunning = false;
             S.auto = false;
-            document.getElementById('btnAutoStart').textContent = '▶ Auto';
-            document.getElementById('btnAutoStart').disabled = false;
             document.getElementById('btnAutoStop').disabled = true;
         }
     }, 1200);
 }
 
 function startAuto() {
-    if (S.autoRunning) return;
+    if (S.autoRunning || S.inRound) return;
     const bet = parseFloat(document.getElementById('autoBet').value);
     const cashout = parseFloat(document.getElementById('autoCashout').value);
     const max = parseInt(document.getElementById('autoMax').value);
@@ -755,6 +745,7 @@ function startAuto() {
     
     if (!bet || bet <= 0 || bet > S.balance) { showMsg('Invalid bet', 'error'); return; }
     if (!cashout || cashout <= 1.0) { showMsg('Cashout must be > 1.0', 'error'); return; }
+    if (!max || max < 1) { showMsg('Invalid max rounds', 'error'); return; }
     
     S.auto = true;
     S.autoRunning = true;
@@ -768,18 +759,17 @@ function startAuto() {
     
     document.getElementById('autoMaxDisplay').textContent = max;
     document.getElementById('autoRound').textContent = '0';
-    document.getElementById('btnAutoStart').textContent = '▶ Running...';
+    document.getElementById('btnAutoStop').disabled = false;
+    document.getElementById('betAmount').value = bet;
     
     S.balance -= bet;
     updBalance();
-    startRound();
+    startNextRound();
 }
 
 function stopAuto() {
     S.autoRunning = false;
     S.auto = false;
-    document.getElementById('btnAutoStart').textContent = '▶ Auto';
-    document.getElementById('btnAutoStart').disabled = false;
     document.getElementById('btnAutoStop').disabled = true;
     showMsg('Auto stopped', 'info');
     if (S.inRound) {
@@ -787,10 +777,10 @@ function stopAuto() {
         S.inRound = false;
         S.phase = 'waiting';
         document.getElementById('multiplier').className = 'multiplier waiting';
+        document.getElementById('multiplier').innerHTML = '1.00<span style="font-size:0.5em">x</span>';
         document.getElementById('statusText').textContent = 'Waiting for next round';
         document.getElementById('statusText').className = 'game-status waiting';
         document.getElementById('statusText').style.color = '';
-        document.getElementById('btnBet').disabled = false;
         document.getElementById('btnCashout').disabled = true;
     }
 }
@@ -810,12 +800,10 @@ resize();
 updBalance();
 updStats();
 
-// Simulate waiting state
-setInterval(() => {
-    if (S.phase === 'waiting' && !S.inRound) {
-        // Just keep UI fresh
-    }
-}, 5000);
+// Start first round automatically after short delay
+setTimeout(() => {
+    startNextRound();
+}, 2000);
 </script>
 </body>
 </html>
