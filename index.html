@@ -3,1203 +3,819 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🚀 Crash Signals</title>
+    <title>Crash</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d0d0d;
             color: #fff;
             min-height: 100vh;
             overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
         }
+        .container { max-width: 420px; margin: 0 auto; padding: 10px; }
         
-        .container {
-            max-width: 450px;
-            margin: 0 auto;
-            padding: 15px;
-        }
-        
+        /* Header */
         .header {
-            text-align: center;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            background: linear-gradient(45deg, #f093fb, #f5576c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 800;
-        }
-        
-        .header .subtitle {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
-        
-        .balance-section {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #1a1a1a;
+            margin-bottom: 10px;
         }
+        .header h1 { font-size: 22px; font-weight: 800; color: #f90; text-transform: uppercase; letter-spacing: 1px; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .balance-display { font-size: 16px; font-weight: 700; color: #ffd700; }
+        .balance-display span { font-size: 12px; color: #666; font-weight: 400; }
         
-        .balance-label {
-            font-size: 12px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
         }
-        
-        .balance-amount {
-            font-size: 24px;
-            font-weight: 700;
-            color: #4ade80;
+        .stat-item {
+            flex: 1;
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
         }
+        .stat-item .val { font-size: 16px; font-weight: 700; }
+        .stat-item .lbl { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
+        .stat-item .val.green { color: #4caf50; }
+        .stat-item .val.red { color: #f44336; }
+        .stat-item .val.orange { color: #f90; }
         
-        .multiplier-section {
-            background: rgba(255,255,255,0.03);
-            border-radius: 20px;
-            padding: 30px 20px;
-            margin-bottom: 15px;
+        /* Multiplier section - the main game area */
+        .game-area {
+            background: #111;
+            border-radius: 12px;
+            padding: 20px 15px;
+            margin-bottom: 10px;
             text-align: center;
             position: relative;
-            overflow: hidden;
             min-height: 200px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            border: 1px solid #1a1a1a;
+            overflow: hidden;
         }
-        
-        .multiplier-section::before {
+        .game-area::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, rgba(79, 70, 229, 0.1) 0%, transparent 70%);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, rgba(255,153,0,0.05) 0%, transparent 70%);
             pointer-events: none;
         }
-        
-        .multiplier-display {
-            font-size: 64px;
-            font-weight: 800;
-            transition: color 0.3s;
+        .multiplier {
+            font-size: 72px;
+            font-weight: 900;
             position: relative;
+            transition: color 0.15s;
+            line-height: 1;
         }
-        
-        .multiplier-display.running {
-            color: #4ade80;
-        }
-        
-        .multiplier-display.crashed {
-            color: #ef4444;
-            animation: pulse 0.5s ease-in-out 3;
-        }
-        
-        .multiplier-display.waiting {
-            color: #facc15;
-        }
-        
-        @keyframes pulse {
+        .multiplier.running { color: #4caf50; }
+        .multiplier.crashed { color: #f44336; animation: crashPulse 0.4s ease-in-out 2; }
+        .multiplier.waiting { color: #666; }
+        @keyframes crashPulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.15); }
         }
-        
-        .multiplier-label {
-            font-size: 14px;
-            color: #888;
-            margin-top: 5px;
-        }
-        
-        .status-text {
-            font-size: 16px;
-            font-weight: 600;
-            margin-top: 10px;
-            padding: 8px 20px;
-            border-radius: 20px;
-            display: inline-block;
-        }
-        
-        .status-text.waiting {
-            background: rgba(250, 204, 21, 0.15);
-            color: #facc15;
-        }
-        
-        .status-text.running {
-            background: rgba(74, 222, 128, 0.15);
-            color: #4ade80;
-        }
-        
-        .status-text.crashed {
-            background: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
-        }
-        
-        .bet-controls {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .bet-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .bet-row:last-child {
-            margin-bottom: 0;
-        }
-        
-        .bet-label {
-            font-size: 12px;
-            color: #888;
-            min-width: 60px;
-        }
-        
-        .bet-input {
-            flex: 1;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px;
-            padding: 10px 15px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 600;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        
-        .bet-input:focus {
-            border-color: #6366f1;
-        }
-        
-        .bet-quick {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .bet-quick button {
-            background: rgba(99, 102, 241, 0.2);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            color: #a5b4fc;
-            padding: 5px 12px;
-            border-radius: 8px;
-            cursor: pointer;
+        .game-status {
             font-size: 13px;
             font-weight: 600;
-            transition: all 0.2s;
+            margin-top: 8px;
+            padding: 4px 16px;
+            border-radius: 50px;
+            display: inline-block;
+            position: relative;
         }
+        .game-status.waiting { color: #888; }
+        .game-status.running { color: #4caf50; }
+        .game-status.crashed { color: #f44336; }
         
-        .bet-quick button:hover {
-            background: rgba(99, 102, 241, 0.4);
+        /* Chart */
+        .chart-wrap {
+            background: #111;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 10px;
+            height: 80px;
+            border: 1px solid #1a1a1a;
         }
+        #chart { width: 100%; height: 100%; display: block; }
         
+        /* Bet controls */
+        .bet-panel {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .bet-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .bet-row:last-child { margin-bottom: 0; }
+        .bet-label { font-size: 11px; color: #666; min-width: 40px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .bet-input {
+            flex: 1;
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            outline: none;
+        }
+        .bet-input:focus { border-color: #f90; }
+        .bet-quick {
+            display: flex;
+            gap: 4px;
+        }
+        .bet-quick button {
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            color: #888;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .bet-quick button:hover { border-color: #f90; color: #f90; }
+        
+        /* Actions */
         .actions {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
-        
         .actions button {
             flex: 1;
             padding: 14px;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 800;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
-        
         .btn-bet {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: #fff;
-        }
-        
-        .btn-bet:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
-        }
-        
-        .btn-bet:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .btn-cashout {
-            background: linear-gradient(135deg, #4ade80, #22d3ee);
+            background: linear-gradient(180deg, #ffab00, #f90);
             color: #000;
         }
+        .btn-bet:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-bet:disabled { opacity: 0.4; filter: none; transform: none; cursor: not-allowed; }
         
-        .btn-cashout:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(74, 222, 128, 0.4);
+        .btn-cashout {
+            background: linear-gradient(180deg, #66bb6a, #43a047);
+            color: #000;
         }
+        .btn-cashout:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-cashout:disabled { opacity: 0.4; filter: none; transform: none; cursor: not-allowed; }
         
-        .btn-cashout:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .btn-auto {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2) !important;
+        .btn-stop {
+            background: linear-gradient(180deg, #ef5350, #e53935);
             color: #fff;
         }
+        .btn-stop:hover { filter: brightness(1.1); }
+        .btn-stop:disabled { opacity: 0.4; filter: none; cursor: not-allowed; }
         
-        .btn-auto:hover {
-            background: rgba(255,255,255,0.2);
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 10px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 3px;
         }
-        
-        .btn-auto.active {
-            background: rgba(99, 102, 241, 0.3);
-            border-color: #6366f1 !important;
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
-        .btn-auto:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .tab.active {
+            background: #0d0d0d;
+            color: #f90;
         }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         
-        .history-section {
-            background: rgba(255,255,255,0.03);
-            border-radius: 15px;
-            padding: 15px;
+        /* Auto settings */
+        .auto-settings {
+            display: none;
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
         }
+        .auto-settings.show { display: block; }
+        .auto-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .auto-row label { font-size: 11px; color: #888; min-width: 80px; }
+        .auto-row input {
+            flex: 1;
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+        }
+        .auto-row input:focus { border-color: #f90; }
+        .auto-info { font-size: 11px; color: #555; text-align: center; margin-top: 6px; }
         
+        /* History */
+        .history-wrap {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 12px;
+        }
         .history-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
-        
-        .history-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #aaa;
-        }
-        
+        .history-title { font-size: 12px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.3px; }
         .history-list {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             flex-wrap: wrap;
-            max-height: 60px;
-            overflow-y: auto;
         }
-        
-        .history-item {
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 12px;
+        .h-item {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
             font-weight: 700;
-            animation: fadeIn 0.3s;
+            animation: fadeIn 0.2s;
         }
-        
-        .history-item.high {
-            background: rgba(74, 222, 128, 0.2);
-            color: #4ade80;
-        }
-        
-        .history-item.medium {
-            background: rgba(250, 204, 21, 0.2);
-            color: #facc15;
-        }
-        
-        .history-item.low {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-        }
-        
+        .h-item.high { background: rgba(76,175,80,0.2); color: #4caf50; }
+        .h-item.med { background: rgba(255,153,0,0.2); color: #f90; }
+        .h-item.low { background: rgba(244,67,54,0.2); color: #f44336; }
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.8); }
             to { opacity: 1; transform: scale(1); }
         }
         
-        .chart-container {
-            background: rgba(255,255,255,0.03);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-            height: 120px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        #chart {
-            width: 100%;
-            height: 100%;
-        }
-        
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
+            background: #1a1a1a;
             color: #fff;
-            padding: 12px 24px;
-            border-radius: 12px;
+            padding: 10px 20px;
+            border-radius: 10px;
             font-weight: 600;
+            font-size: 13px;
             z-index: 1000;
             display: none;
-            animation: slideUp 0.3s;
+            animation: slideUp 0.25s;
             max-width: 90%;
             text-align: center;
+            border: 1px solid #2a2a2a;
         }
-        
+        .toast.show { display: block; }
         @keyframes slideUp {
             from { transform: translateX(-50%) translateY(20px); opacity: 0; }
             to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
         
-        .toast.show {
-            display: block;
-        }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
         
-        .toast.success {
-            background: rgba(74, 222, 128, 0.9);
-            color: #000;
-        }
-        
-        .toast.error {
-            background: rgba(239, 68, 68, 0.9);
-        }
-        
-        .toast.info {
-            background: rgba(99, 102, 241, 0.9);
-        }
-        
-        .stats-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .stat-box {
-            flex: 1;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 12px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        
-        .stat-value.green { color: #4ade80; }
-        .stat-value.red { color: #ef4444; }
-        .stat-value.blue { color: #6366f1; }
-        
-        .stat-label {
-            font-size: 10px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 3px;
-        }
-        
-        .auto-settings {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: none;
-        }
-        
-        .auto-settings.show {
-            display: block;
-        }
-        
-        .auto-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-        
-        .auto-row label {
-            font-size: 12px;
-            color: #888;
-            min-width: 80px;
-        }
-        
-        .auto-row input {
-            flex: 1;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px;
-            padding: 8px 12px;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-        }
-        
-        .auto-row input:focus {
-            border-color: #6366f1;
-        }
-        
-        .notification-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-        
-        .notification-dot.green { background: #4ade80; }
-        .notification-dot.red { background: #ef4444; }
-        .notification-dot.yellow { background: #facc15; }
-        
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.15);
-            border-radius: 2px;
-        }
-        
-        .tab-bar {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
-        }
-        
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s;
-            color: #888;
-        }
-        
-        .tab.active {
-            background: rgba(99, 102, 241, 0.2);
-            color: #a5b4fc;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        @media (max-width: 480px) {
-            .multiplier-display {
-                font-size: 48px;
-            }
-            .header h1 {
-                font-size: 20px;
-            }
-            .actions button {
-                padding: 12px;
-                font-size: 14px;
-            }
+        @media (max-width: 420px) {
+            .multiplier { font-size: 56px; }
+            .game-area { min-height: 160px; padding: 15px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🚀 Crash Signals</h1>
-            <div class="subtitle">AI-Powered Crash Analysis</div>
-        </div>
-        
-        <div class="balance-section">
-            <div>
-                <div class="balance-label">💎 Balance</div>
-                <div class="balance-amount" id="balance">1000.00</div>
-            </div>
-            <div style="text-align:right">
-                <div class="balance-label">📊 Win Rate</div>
-                <div class="balance-amount" style="font-size:18px; color:#6366f1" id="winRate">0%</div>
-            </div>
-        </div>
-        
-        <div class="stats-row">
-            <div class="stat-box">
-                <div class="stat-value green" id="totalWins">0</div>
-                <div class="stat-label">Wins</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value red" id="totalLosses">0</div>
-                <div class="stat-label">Losses</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value blue" id="bestMultiplier">1.00x</div>
-                <div class="stat-label">Best</div>
-            </div>
-        </div>
-        
-        <div class="tab-bar">
-            <div class="tab active" data-tab="manual">MANUAL</div>
-            <div class="tab" data-tab="auto">AUTO</div>
-        </div>
-        
-        <!-- Manual Tab -->
-        <div class="tab-content active" id="manualTab">
-            <div class="multiplier-section" id="multiplierSection">
-                <div class="multiplier-display waiting" id="multiplier">1.00x</div>
-                <div class="multiplier-label">Current Multiplier</div>
-                <div class="status-text waiting" id="statusText">⏳ Waiting for next round...</div>
-            </div>
-            
-            <div class="bet-controls">
-                <div class="bet-row">
-                    <div class="bet-label">Bet Amount</div>
-                    <input type="number" class="bet-input" id="betAmount" value="10" min="1">
-                </div>
-                <div class="bet-row">
-                    <div class="bet-label"></div>
-                    <div class="bet-quick">
-                        <button onclick="setBet(1)">1</button>
-                        <button onclick="setBet(5)">5</button>
-                        <button onclick="setBet(10)">10</button>
-                        <button onclick="setBet(25)">25</button>
-                        <button onclick="setBet(50)">50</button>
-                        <button onclick="setBet(100)">100</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="actions">
-                <button class="btn-bet" id="btnBet" onclick="placeBet()">🎰 BET</button>
-                <button class="btn-cashout" id="btnCashout" onclick="cashOut()" disabled>💰 CASH OUT</button>
-            </div>
-        </div>
-        
-        <!-- Auto Tab -->
-        <div class="tab-content" id="autoTab">
-            <div class="auto-settings show">
-                <div class="auto-row">
-                    <label>Bet Amount</label>
-                    <input type="number" id="autoBetAmount" value="10" min="1">
-                </div>
-                <div class="auto-row">
-                    <label>Auto Cashout</label>
-                    <input type="number" id="autoCashout" value="2.0" min="1.01" step="0.01">
-                </div>
-                <div class="auto-row">
-                    <label>Max Bets</label>
-                    <input type="number" id="autoMaxBets" value="10" min="1">
-                </div>
-                <div class="auto-row">
-                    <label>On Win</label>
-                    <input type="text" id="autoOnWin" value="reset" placeholder="reset / increase by x">
-                </div>
-                <div class="auto-row">
-                    <label>On Loss</label>
-                    <input type="text" id="autoOnLoss" value="double" placeholder="double / reset / increase by x">
-                </div>
-            </div>
-            
-            <div class="multiplier-section" id="autoMultiplierSection">
-                <div class="multiplier-display waiting" id="autoMultiplier">1.00x</div>
-                <div class="multiplier-label">Current Multiplier</div>
-                <div class="status-text waiting" id="autoStatusText">⏳ Waiting...</div>
-            </div>
-            
-            <div class="actions">
-                <button class="btn-bet" id="btnAutoStart" onclick="startAuto()">▶️ START AUTO</button>
-                <button class="btn-cashout" id="btnAutoStop" onclick="stopAuto()" disabled>⏹ STOP</button>
-            </div>
-            
-            <div style="text-align:center; font-size:12px; color:#666; margin-top:5px;">
-                Auto rounds: <span id="autoRoundsCount">0</span> / <span id="autoMaxRounds">10</span>
-            </div>
-        </div>
-        
-        <div class="chart-container">
-            <canvas id="chart"></canvas>
-        </div>
-        
-        <div class="history-section">
-            <div class="history-header">
-                <span class="history-title">📜 History</span>
-                <span class="history-title" style="font-size:11px; color:#555;">Last 20 rounds</span>
-            </div>
-            <div class="history-list" id="historyList">
-                <span style="color:#555; font-size:12px;">No rounds yet</span>
-            </div>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <h1>Crash</h1>
+        <div class="header-right">
+            <div class="balance-display"><span>$</span> <span id="balance">1,000.00</span></div>
         </div>
     </div>
     
-    <div class="toast" id="toast"></div>
+    <!-- Stats -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="val green" id="wins">0</div>
+            <div class="lbl">Wins</div>
+        </div>
+        <div class="stat-item">
+            <div class="val red" id="losses">0</div>
+            <div class="lbl">Losses</div>
+        </div>
+        <div class="stat-item">
+            <div class="val orange" id="bestMult">1.00x</div>
+            <div class="lbl">Best</div>
+        </div>
+        <div class="stat-item">
+            <div class="val orange" id="winRate">0%</div>
+            <div class="lbl">Win Rate</div>
+        </div>
+    </div>
     
-    <script>
-        // Game State
-        const state = {
-            balance: 1000.0,
-            betAmount: 10,
-            inRound: false,
-            isCrashed: false,
-            currentMultiplier: 1.0,
-            history: [],
-            wins: 0,
-            losses: 0,
-            bestMultiplier: 1.0,
-            
-            // Auto mode
-            autoMode: false,
-            autoRunning: false,
-            autoBetsCount: 0,
-            autoMaxBets: 10,
-            autoCashoutMultiplier: 2.0,
-            autoBetAmount: 10,
-            autoOnWin: 'reset',
-            autoOnLoss: 'double',
-            
-            // Animation
-            animFrame: null,
-            startTime: 0,
-            crashPoint: 0,
-            gamePhase: 'waiting' // waiting, running, crashed
-        };
-        
-        const canvas = document.getElementById('chart');
-        const ctx = canvas.getContext('2d');
-        let chartData = [];
-        
-        function resizeCanvas() {
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            drawChart();
-        }
-        
-        window.addEventListener('resize', resizeCanvas);
-        
-        // Generate crash point using provably fair algorithm simulation
-        function generateCrashPoint() {
-            // Simulate house edge ~5%
-            const r = Math.random();
-            if (r < 0.03) return 1.0; // 3% chance crash immediately
-            if (r < 0.07) return (1 + Math.random() * 0.5).toFixed(2); // 4% chance 1.0-1.5
-            if (r < 0.15) return (1.0 + Math.random()).toFixed(2); // 8% chance 1-2x
-            
-            // Use exponential distribution for realistic crash points
-            const houseEdge = 0.05;
-            const fairGame = 1 / (1 - houseEdge);
-            const crashPoint = fairGame / (Math.random() + 0.01);
-            return Math.max(1.0, Math.min(crashPoint, 50)).toFixed(2);
-        }
-        
-        // Set bet amount
-        function setBet(amount) {
-            document.getElementById('betAmount').value = amount;
-            state.betAmount = amount;
-        }
-        
-        // Show toast notification
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast show ' + type;
-            
-            setTimeout(() => {
-                toast.className = 'toast';
-            }, 3000);
-        }
-        
-        // Update balance display
-        function updateBalance() {
-            document.getElementById('balance').textContent = state.balance.toFixed(2);
-        }
-        
-        // Update stats
-        function updateStats() {
-            document.getElementById('totalWins').textContent = state.wins;
-            document.getElementById('totalLosses').textContent = state.losses;
-            document.getElementById('bestMultiplier').textContent = state.bestMultiplier.toFixed(2) + 'x';
-            
-            const total = state.wins + state.losses;
-            const winRate = total > 0 ? ((state.wins / total) * 100).toFixed(0) : 0;
-            document.getElementById('winRate').textContent = winRate + '%';
-        }
-        
-        // Add history entry
-        function addHistory(multiplier, cashedOut = false) {
-            const isWin = cashedOut;
-            if (isWin) {
-                state.wins++;
-            } else {
-                state.losses++;
-            }
-            
-            if (parseFloat(multiplier) > state.bestMultiplier) {
-                state.bestMultiplier = parseFloat(multiplier);
-            }
-            
-            state.history.unshift({
-                multiplier: parseFloat(multiplier),
-                cashedOut: cashedOut,
-                time: Date.now()
-            });
-            
-            if (state.history.length > 20) {
-                state.history.pop();
-            }
-            
-            updateStats();
-            renderHistory();
-        }
-        
-        // Render history
-        function renderHistory() {
-            const list = document.getElementById('historyList');
-            
-            if (state.history.length === 0) {
-                list.innerHTML = '<span style="color:#555; font-size:12px;">No rounds yet</span>';
-                return;
-            }
-            
-            list.innerHTML = state.history.map(item => {
-                const m = item.multiplier;
-                let cls = 'low';
-                if (m >= 3) cls = 'high';
-                else if (m >= 1.5) cls = 'medium';
-                
-                const icon = item.cashedOut ? '✅' : '💥';
-                return `<span class="history-item ${cls}">${icon}${m.toFixed(2)}x</span>`;
-            }).join('');
-        }
-        
-        // Draw chart
-        function drawChart() {
-            const w = canvas.width;
-            const h = canvas.height;
-            
-            ctx.clearRect(0, 0, w, h);
-            
-            if (chartData.length < 2) {
-                // Draw placeholder
-                ctx.fillStyle = 'rgba(255,255,255,0.05)';
-                ctx.font = '14px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#444';
-                ctx.fillText('📈 Chart will appear here', w/2, h/2);
-                return;
-            }
-            
-            const padding = 20;
-            const usableW = w - padding * 2;
-            const usableH = h - padding * 2;
-            
-            const maxX = chartData.length - 1;
-            const maxY = Math.max(...chartData.map(d => d.y), 1);
-            
-            // Draw grid
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.lineWidth = 0.5;
-            
-            for (let i = 0; i < 5; i++) {
-                const y = padding + (usableH / 4) * i;
-                ctx.beginPath();
-                ctx.moveTo(padding, y);
-                ctx.lineTo(w - padding, y);
-                ctx.stroke();
-            }
-            
-            // Draw line
-            const gradient = ctx.createLinearGradient(0, 0, 0, h);
-            if (state.gamePhase === 'crashed') {
-                gradient.addColorStop(0, '#ef4444');
-                gradient.addColorStop(1, '#ef444488');
-            } else {
-                gradient.addColorStop(0, '#4ade80');
-                gradient.addColorStop(1, '#22d3ee');
-            }
-            
-            ctx.strokeStyle = gradient;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            
-            chartData.forEach((point, i) => {
-                const x = padding + (i / maxX) * usableW;
-                const y = padding + usableH - (point.y / maxY) * usableH * 0.9;
-                
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            });
-            
-            ctx.stroke();
-            
-            // Draw current multiplier value
-            if (chartData.length > 0) {
-                const last = chartData[chartData.length - 1];
-                const x = padding + (chartData.length - 1) / maxX * usableW;
-                const y = padding + usableH - (last.y / maxY) * usableH * 0.9;
-                
-                ctx.fillStyle = state.gamePhase === 'crashed' ? '#ef4444' : '#4ade80';
-                ctx.font = 'bold 12px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(last.y.toFixed(2) + 'x', x, y - 8);
-            }
-        }
-        
-        // Game tick - update multiplier
-        function gameTick() {
-            if (state.gamePhase !== 'running') return;
-            
-            const elapsed = (Date.now() - state.startTime) / 1000;
-            
-            // Exponential growth for realistic feel
-            const growth = Math.pow(1.3, elapsed * 1.5);
-            state.currentMultiplier = 1.0 + (growth - 1.0) * 0.5;
-            
-            // Check if crashed
-            if (state.currentMultiplier >= state.crashPoint) {
-                crash();
-                return;
-            }
-            
-            updateMultiplierDisplay();
-            
-            // Chart data
-            chartData.push({ x: elapsed, y: state.currentMultiplier });
-            if (chartData.length > 100) {
-                chartData = chartData.slice(-100);
-            }
-            drawChart();
-            
-            state.animFrame = requestAnimationFrame(gameTick);
-        }
-        
-        // Update multiplier display
-        function updateMultiplierDisplay() {
-            const display = document.getElementById('multiplier');
-            const autoDisplay = document.getElementById('autoMultiplier');
-            const m = state.currentMultiplier;
-            
-            const text = m.toFixed(2) + 'x';
-            display.textContent = text;
-            autoDisplay.textContent = text;
-        }
-        
-        // Place bet
-        function placeBet() {
-            if (state.inRound || state.balance <= 0) return;
-            
-            const amount = parseFloat(document.getElementById('betAmount').value);
-            if (isNaN(amount) || amount <= 0 || amount > state.balance) {
-                showToast('Invalid bet amount!', 'error');
-                return;
-            }
-            
-            state.betAmount = amount;
-            state.balance -= amount;
-            updateBalance();
-            
+    <!-- Game Area -->
+    <div class="game-area" id="gameArea">
+        <div class="multiplier waiting" id="multiplier">1.00<span style="font-size:0.5em">x</span></div>
+        <div class="game-status waiting" id="statusText">Waiting for next round</div>
+    </div>
+    
+    <!-- Chart -->
+    <div class="chart-wrap">
+        <canvas id="chart"></canvas>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab active" data-tab="manual">Manual</div>
+        <div class="tab" data-tab="auto">Auto</div>
+    </div>
+    
+    <!-- Manual Tab -->
+    <div class="tab-content active" id="manualTab">
+        <div class="bet-panel">
+            <div class="bet-row">
+                <div class="bet-label">Bet</div>
+                <input type="number" class="bet-input" id="betAmount" value="10" min="1">
+            </div>
+            <div class="bet-row">
+                <div class="bet-label"></div>
+                <div class="bet-quick">
+                    <button onclick="setBet(1)">1</button>
+                    <button onclick="setBet(5)">5</button>
+                    <button onclick="setBet(10)">10</button>
+                    <button onclick="setBet(25)">25</button>
+                    <button onclick="setBet(50)">50</button>
+                    <button onclick="setBet(100)">100</button>
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn-bet" id="btnBet" onclick="placeBet()">Bet</button>
+            <button class="btn-cashout" id="btnCashout" onclick="cashOut()" disabled>Cash Out</button>
+        </div>
+    </div>
+    
+    <!-- Auto Tab -->
+    <div class="tab-content" id="autoTab">
+        <div class="auto-settings show">
+            <div class="auto-row">
+                <label>Bet Amount</label>
+                <input type="number" id="autoBet" value="10" min="1">
+            </div>
+            <div class="auto-row">
+                <label>Auto Cashout</label>
+                <input type="number" id="autoCashout" value="2.0" min="1.01" step="0.01">
+            </div>
+            <div class="auto-row">
+                <label>Max Rounds</label>
+                <input type="number" id="autoMax" value="10" min="1">
+            </div>
+            <div class="auto-row">
+                <label>On Win</label>
+                <input type="text" id="autoOnWin" value="reset" placeholder="reset / double">
+            </div>
+            <div class="auto-row">
+                <label>On Loss</label>
+                <input type="text" id="autoOnLoss" value="double" placeholder="double / reset">
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn-bet" id="btnAutoStart" onclick="startAuto()">▶ Auto</button>
+            <button class="btn-stop" id="btnAutoStop" onclick="stopAuto()" disabled>Stop</button>
+        </div>
+        <div class="auto-info">Round: <span id="autoRound">0</span> / <span id="autoMaxDisplay">10</span></div>
+    </div>
+    
+    <!-- History -->
+    <div class="history-wrap">
+        <div class="history-header">
+            <span class="history-title">History</span>
+            <span class="history-title" style="color:#444;">Last 20</span>
+        </div>
+        <div class="history-list" id="historyList">
+            <span style="color:#444; font-size:11px;">No rounds yet</span>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Game state
+const S = {
+    balance: 1000,
+    bet: 10,
+    inRound: false,
+    crashed: false,
+    mult: 1.0,
+    crashPoint: 0,
+    phase: 'waiting',
+    wins: 0,
+    losses: 0,
+    bestMult: 1.0,
+    history: [],
+    chart: [],
+    startTime: 0,
+    animId: null,
+    
+    // Auto
+    auto: false,
+    autoRunning: false,
+    autoCount: 0,
+    autoMax: 10,
+    autoCashout: 2.0,
+    autoBet: 10,
+    autoOnWin: 'reset',
+    autoOnLoss: 'double'
+};
+
+const canvas = document.getElementById('chart');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+    const r = canvas.parentElement.getBoundingClientRect();
+    canvas.width = r.width;
+    canvas.height = r.height;
+    drawChart();
+}
+window.addEventListener('resize', resize);
+
+// Crash point generation
+function genCrash() {
+    const r = Math.random();
+    if (r < 0.02) return 1.0;
+    if (r < 0.06) return 1 + Math.random() * 0.5;
+    if (r < 0.12) return 1 + Math.random();
+    const edge = 0.05;
+    const fair = 1 / (1 - edge);
+    return Math.max(1.0, Math.min(fair / (Math.random() + 0.01), 50));
+}
+
+function setBet(v) {
+    document.getElementById('betAmount').value = v;
+    S.bet = v;
+}
+
+function showMsg(msg, type = 'info') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.borderColor = type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2a2a2a';
+    t.className = 'toast show';
+    setTimeout(() => { t.className = 'toast'; }, 2500);
+}
+
+function fmt(n) { return n.toFixed(2); }
+
+function updBalance() {
+    document.getElementById('balance').textContent = fmt(S.balance).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function updStats() {
+    document.getElementById('wins').textContent = S.wins;
+    document.getElementById('losses').textContent = S.losses;
+    document.getElementById('bestMult').textContent = fmt(S.bestMult) + 'x';
+    const t = S.wins + S.losses;
+    document.getElementById('winRate').textContent = t > 0 ? Math.round(S.wins / t * 100) + '%' : '0%';
+}
+
+function addHist(mult, won) {
+    if (won) S.wins++; else S.losses++;
+    if (mult > S.bestMult) S.bestMult = mult;
+    S.history.unshift({ mult, won });
+    if (S.history.length > 20) S.history.pop();
+    updStats();
+    renderHist();
+}
+
+function renderHist() {
+    const el = document.getElementById('historyList');
+    if (!S.history.length) {
+        el.innerHTML = '<span style="color:#444;font-size:11px;">No rounds yet</span>';
+        return;
+    }
+    el.innerHTML = S.history.map(h => {
+        const m = h.mult;
+        let cls = m >= 3 ? 'high' : m >= 1.5 ? 'med' : 'low';
+        const icon = h.won ? '✅' : '💥';
+        return `<span class="h-item ${cls}">${icon}${fmt(m)}x</span>`;
+    }).join('');
+}
+
+function drawChart() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    if (S.chart.length < 2) {
+        ctx.fillStyle = '#333';
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Chart', w/2, h/2);
+        return;
+    }
+    const pad = 15;
+    const uw = w - pad * 2, uh = h - pad * 2;
+    const mx = S.chart.length - 1;
+    const my = Math.max(...S.chart.map(p => p.y), 1);
+    
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < 4; i++) {
+        const y = pad + (uh / 3) * i;
+        ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w - pad, y); ctx.stroke();
+    }
+    
+    // Line
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    if (S.phase === 'crashed') {
+        grad.addColorStop(0, '#f44336');
+        grad.addColorStop(1, 'rgba(244,67,54,0.3)');
+    } else {
+        grad.addColorStop(0, '#4caf50');
+        grad.addColorStop(1, 'rgba(76,175,80,0.3)');
+    }
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    S.chart.forEach((p, i) => {
+        const x = pad + (i / mx) * uw;
+        const y = pad + uh - (p.y / my) * uh * 0.85;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    
+    // Last value
+    const last = S.chart[S.chart.length - 1];
+    if (last) {
+        const x = pad + (S.chart.length - 1) / mx * uw;
+        const y = pad + uh - (last.y / my) * uh * 0.85;
+        ctx.fillStyle = S.phase === 'crashed' ? '#f44336' : '#4caf50';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(fmt(last.y) + 'x', x, y - 6);
+    }
+}
+
+// Game tick
+function tick() {
+    if (S.phase !== 'running') return;
+    const elapsed = (Date.now() - S.startTime) / 1000;
+    const growth = Math.pow(1.3, elapsed * 1.5);
+    S.mult = 1.0 + (growth - 1.0) * 0.5;
+    
+    if (S.mult >= S.crashPoint) { crash(); return; }
+    
+    updMult();
+    S.chart.push({ x: elapsed, y: S.mult });
+    if (S.chart.length > 100) S.chart = S.chart.slice(-100);
+    drawChart();
+    
+    // Auto cashout check
+    if (S.auto && S.mult >= S.autoCashout) { cashOut(); return; }
+    
+    S.animId = requestAnimationFrame(tick);
+}
+
+function updMult() {
+    const el = document.getElementById('multiplier');
+    el.innerHTML = fmt(S.mult) + '<span style="font-size:0.5em">x</span>';
+}
+
+function placeBet() {
+    if (S.inRound || S.balance <= 0) return;
+    const amt = parseFloat(document.getElementById('betAmount').value);
+    if (!amt || amt <= 0 || amt > S.balance) { showMsg('Invalid bet', 'error'); return; }
+    S.bet = amt;
+    S.balance -= amt;
+    updBalance();
+    startRound();
+}
+
+function startRound() {
+    S.inRound = true;
+    S.crashed = false;
+    S.phase = 'running';
+    S.crashPoint = genCrash();
+    S.mult = 1.0;
+    S.startTime = Date.now();
+    S.chart = [{ x: 0, y: 1.0 }];
+    
+    document.getElementById('multiplier').className = 'multiplier running';
+    document.getElementById('statusText').textContent = 'Running...';
+    document.getElementById('statusText').className = 'game-status running';
+    document.getElementById('btnBet').disabled = true;
+    document.getElementById('btnCashout').disabled = false;
+    if (S.auto) {
+        document.getElementById('btnAutoStart').disabled = true;
+        document.getElementById('btnAutoStop').disabled = false;
+    }
+    S.animId = requestAnimationFrame(tick);
+}
+
+function cashOut() {
+    if (!S.inRound || S.crashed || S.phase !== 'running') return;
+    cancelAnimationFrame(S.animId);
+    
+    const mult = S.mult;
+    const profit = S.bet * mult;
+    S.balance += profit;
+    S.inRound = false;
+    S.phase = 'waiting';
+    S.crashed = true;
+    
+    document.getElementById('multiplier').className = 'multiplier waiting';
+    document.getElementById('statusText').textContent = 'Cashed Out! +' + fmt(profit - S.bet);
+    document.getElementById('statusText').className = 'game-status';
+    document.getElementById('statusText').style.color = '#4caf50';
+    document.getElementById('btnBet').disabled = false;
+    document.getElementById('btnCashout').disabled = true;
+    if (S.auto) {
+        document.getElementById('btnAutoStart').disabled = false;
+        document.getElementById('btnAutoStop').disabled = true;
+    }
+    
+    updBalance();
+    addHist(mult, true);
+    S.chart.push({ x: (Date.now() - S.startTime) / 1000, y: mult });
+    drawChart();
+    showMsg('Cashed out at ' + fmt(mult) + 'x! +' + fmt(profit - S.bet), 'success');
+    
+    if (S.auto && S.autoRunning) handleAuto(true, mult);
+}
+
+function crash() {
+    cancelAnimationFrame(S.animId);
+    S.crashed = true;
+    S.inRound = false;
+    S.phase = 'crashed';
+    
+    document.getElementById('multiplier').className = 'multiplier crashed';
+    document.getElementById('statusText').textContent = 'Crashed at ' + fmt(S.crashPoint) + 'x';
+    document.getElementById('statusText').className = 'game-status crashed';
+    document.getElementById('btnBet').disabled = false;
+    document.getElementById('btnCashout').disabled = true;
+    if (S.auto) {
+        document.getElementById('btnAutoStart').disabled = false;
+        document.getElementById('btnAutoStop').disabled = true;
+    }
+    
+    addHist(S.crashPoint, false);
+    S.chart.push({ x: (Date.now() - S.startTime) / 1000, y: S.crashPoint });
+    drawChart();
+    showMsg('Crashed at ' + fmt(S.crashPoint) + 'x! -' + fmt(S.bet), 'error');
+    
+    if (S.auto && S.autoRunning) handleAuto(false, S.crashPoint);
+}
+
+function handleAuto(won, mult) {
+    S.autoCount++;
+    document.getElementById('autoRound').textContent = S.autoCount;
+    
+    if (S.autoCount >= S.autoMax) {
+        showMsg('Auto complete: ' + S.autoCount + ' rounds', 'success');
+        S.autoRunning = false;
+        S.auto = false;
+        document.getElementById('btnAutoStart').textContent = '▶ Auto';
+        document.getElementById('btnAutoStart').disabled = false;
+        document.getElementById('btnAutoStop').disabled = true;
+        document.getElementById('autoRound').textContent = '0';
+        return;
+    }
+    
+    // Strategy
+    if (won) {
+        if (S.autoOnWin === 'reset') S.bet = S.autoBet;
+        else if (S.autoOnWin.startsWith('double')) S.bet *= 2;
+    } else {
+        if (S.autoOnLoss === 'double') S.bet *= 2;
+        else if (S.autoOnLoss === 'reset') S.bet = S.autoBet;
+    }
+    document.getElementById('betAmount').value = fmt(S.bet);
+    
+    setTimeout(() => {
+        if (!S.autoRunning) return;
+        if (S.balance >= S.bet) {
+            S.balance -= S.bet;
+            updBalance();
             startRound();
-        }
-        
-        // Start round
-        function startRound() {
-            state.inRound = true;
-            state.isCrashed = false;
-            state.gamePhase = 'running';
-            state.crashPoint = parseFloat(generateCrashPoint());
-            state.currentMultiplier = 1.0;
-            state.startTime = Date.now();
-            chartData = [{ x: 0, y: 1.0 }];
-            
-            // Update UI
-            document.getElementById('multiplier').className = 'multiplier-display running';
-            document.getElementById('autoMultiplier').className = 'multiplier-display running';
-            document.getElementById('statusText').textContent = '🚀 Running...';
-            document.getElementById('statusText').className = 'status-text running';
-            document.getElementById('autoStatusText').textContent = '🚀 Running...';
-            document.getElementById('autoStatusText').className = 'status-text running';
-            
-            document.getElementById('btnBet').disabled = true;
-            document.getElementById('btnCashout').disabled = false;
-            
-            if (state.autoMode) {
-                document.getElementById('btnAutoStart').disabled = true;
-                document.getElementById('btnAutoStop').disabled = false;
-            }
-            
-            // Start game loop
-            state.animFrame = requestAnimationFrame(gameTick);
-        }
-        
-        // Cash out
-        function cashOut() {
-            if (!state.inRound || state.isCrashed || state.gamePhase !== 'running') return;
-            
-            cancelAnimationFrame(state.animFrame);
-            
-            const multiplier = state.currentMultiplier;
-            const profit = state.betAmount * multiplier;
-            state.balance += profit;
-            
-            state.inRound = false;
-            state.gamePhase = 'waiting';
-            
-            // Visual
-            document.getElementById('multiplier').className = 'multiplier-display waiting';
-            document.getElementById('autoMultiplier').className = 'multiplier-display waiting';
-            document.getElementById('statusText').textContent = '✅ Cashed Out! +' + (profit - state.betAmount).toFixed(2);
-            document.getElementById('statusText').className = 'status-text';
-            document.getElementById('statusText').style.color = '#4ade80';
-            document.getElementById('autoStatusText').textContent = '✅ Cashed Out!';
-            document.getElementById('autoStatusText').className = 'status-text';
-            
-            document.getElementById('btnBet').disabled = false;
-            document.getElementById('btnCashout').disabled = true;
-            
-            if (state.autoMode) {
-                document.getElementById('btnAutoStart').disabled = false;
-                document.getElementById('btnAutoStop').disabled = true;
-            }
-            
-            updateBalance();
-            addHistory(multiplier, true);
-            
-            showToast('💰 Cashed out at ' + multiplier.toFixed(2) + 'x! Profit: +' + (profit - state.betAmount).toFixed(2), 'success');
-            
-            chartData.push({ x: (Date.now() - state.startTime) / 1000, y: multiplier });
-            drawChart();
-            
-            // Auto mode - continue
-            if (state.autoMode && state.autoRunning) {
-                handleAutoResult(true, multiplier);
-            }
-        }
-        
-        // Crash
-        function crash() {
-            cancelAnimationFrame(state.animFrame);
-            
-            state.isCrashed = true;
-            state.inRound = false;
-            state.gamePhase = 'crashed';
-            
-            // Visual
-            document.getElementById('multiplier').className = 'multiplier-display crashed';
-            document.getElementById('autoMultiplier').className = 'multiplier-display crashed';
-            document.getElementById('statusText').textContent = '💥 CRASHED at ' + state.crashPoint + 'x!';
-            document.getElementById('statusText').className = 'status-text crashed';
-            document.getElementById('autoStatusText').textContent = '💥 CRASHED at ' + state.crashPoint + 'x!';
-            document.getElementById('autoStatusText').className = 'status-text crashed';
-            
-            document.getElementById('btnBet').disabled = false;
-            document.getElementById('btnCashout').disabled = true;
-            
-            if (state.autoMode) {
-                document.getElementById('btnAutoStart').disabled = false;
-                document.getElementById('btnAutoStop').disabled = true;
-            }
-            
-            addHistory(state.crashPoint, false);
-            
-            showToast('💥 Crashed at ' + state.crashPoint + 'x! Lost ' + state.betAmount.toFixed(2), 'error');
-            
-            chartData.push({ x: (Date.now() - state.startTime) / 1000, y: state.crashPoint });
-            drawChart();
-            
-            // Auto mode - continue
-            if (state.autoMode && state.autoRunning) {
-                handleAutoResult(false, state.crashPoint);
-            }
-            
-            // Auto-check if we should cash out (for auto mode)
-            if (state.autoMode && state.currentMultiplier >= state.autoCashoutMultiplier && !state.isCrashed) {
-                cashOut();
-            }
-        }
-        
-        // Handle auto mode result
-        function handleAutoResult(won, multiplier) {
-            state.autoBetsCount++;
-            document.getElementById('autoRoundsCount').textContent = state.autoBetsCount;
-            
-            if (state.autoBetsCount >= state.autoMaxBets) {
-                showToast('✅ Auto mode completed! ' + state.autoBetsCount + ' rounds', 'success');
-                state.autoRunning = false;
-                state.autoMode = false;
-                document.getElementById('btnAutoStart').textContent = '▶️ START AUTO';
-                document.getElementById('btnAutoStart').disabled = false;
-                document.getElementById('btnAutoStop').disabled = true;
-                document.getElementById('autoRoundsCount').textContent = '0';
-                return;
-            }
-            
-            // Adjust bet based on settings
-            if (won) {
-                if (state.autoOnWin === 'reset') {
-                    state.betAmount = state.autoBetAmount;
-                } else if (state.autoOnWin.startsWith('increase')) {
-                    const parts = state.autoOnWin.split(' ');
-                    const mult = parts.length > 1 ? parseFloat(parts[1]) : 2;
-                    state.betAmount *= mult;
-                }
-            } else {
-                if (state.autoOnLoss === 'double') {
-                    state.betAmount *= 2;
-                } else if (state.autoOnLoss === 'reset') {
-                    state.betAmount = state.autoBetAmount;
-                } else if (state.autoOnLoss.startsWith('increase')) {
-                    const parts = state.autoOnLoss.split(' ');
-                    const mult = parts.length > 1 ? parseFloat(parts[1]) : 2;
-                    state.betAmount *= mult;
-                }
-            }
-            
-            document.getElementById('betAmount').value = state.betAmount.toFixed(2);
-            
-            // Start next round after delay
-            setTimeout(() => {
-                if (state.autoRunning) {
-                    if (state.balance >= state.betAmount) {
-                        state.balance -= state.betAmount;
-                        updateBalance();
-                        startRound();
-                    } else {
-                        showToast('❌ Insufficient balance for auto mode!', 'error');
-                        state.autoRunning = false;
-                        state.autoMode = false;
-                        document.getElementById('btnAutoStart').textContent = '▶️ START AUTO';
-                        document.getElementById('btnAutoStart').disabled = false;
-                        document.getElementById('btnAutoStop').disabled = true;
-                    }
-                }
-            }, 1500);
-        }
-        
-        // Start auto mode
-        function startAuto() {
-            if (state.autoRunning) return;
-            
-            const bet = parseFloat(document.getElementById('autoBetAmount').value);
-            const cashout = parseFloat(document.getElementById('autoCashout').value);
-            const maxBets = parseInt(document.getElementById('autoMaxBets').value);
-            const onWin = document.getElementById('autoOnWin').value.trim();
-            const onLoss = document.getElementById('autoOnLoss').value.trim();
-            
-            if (isNaN(bet) || bet <= 0 || bet > state.balance) {
-                showToast('Invalid bet amount!', 'error');
-                return;
-            }
-            
-            if (isNaN(cashout) || cashout <= 1.0) {
-                showToast('Cashout multiplier must be > 1.0', 'error');
-                return;
-            }
-            
-            state.autoMode = true;
-            state.autoRunning = true;
-            state.autoBetAmount = bet;
-            state.betAmount = bet;
-            state.autoCashoutMultiplier = cashout;
-            state.autoMaxBets = maxBets;
-            state.autoBetsCount = 0;
-            state.autoOnWin = onWin;
-            state.autoOnLoss = onLoss;
-            
-            document.getElementById('autoMaxRounds').textContent = maxBets;
-            document.getElementById('autoRoundsCount').textContent = '0';
-            document.getElementById('btnAutoStart').textContent = '▶️ RUNNING...';
-            
-            // First bet
-            state.balance -= bet;
-            updateBalance();
-            startRound();
-        }
-        
-        // Stop auto mode
-        function stopAuto() {
-            state.autoRunning = false;
-            state.autoMode = false;
-            document.getElementById('btnAutoStart').textContent = '▶️ START AUTO';
+        } else {
+            showMsg('Insufficient balance', 'error');
+            S.autoRunning = false;
+            S.auto = false;
+            document.getElementById('btnAutoStart').textContent = '▶ Auto';
             document.getElementById('btnAutoStart').disabled = false;
             document.getElementById('btnAutoStop').disabled = true;
-            
-            showToast('⏹ Auto mode stopped', 'info');
-            
-            if (state.inRound) {
-                cancelAnimationFrame(state.animFrame);
-                state.inRound = false;
-                state.gamePhase = 'waiting';
-                document.getElementById('multiplier').className = 'multiplier-display waiting';
-                document.getElementById('autoMultiplier').className = 'multiplier-display waiting';
-                document.getElementById('statusText').textContent = '⏳ Waiting for next round...';
-                document.getElementById('statusText').className = 'status-text waiting';
-                document.getElementById('autoStatusText').textContent = '⏳ Waiting...';
-                document.getElementById('autoStatusText').className = 'status-text waiting';
-                document.getElementById('btnBet').disabled = false;
-                document.getElementById('btnCashout').disabled = true;
-            }
         }
-        
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-                
-                this.classList.add('active');
-                document.getElementById(this.dataset.tab + 'Tab').classList.add('active');
-            });
-        });
-        
-        // Initialize
-        resizeCanvas();
-        updateBalance();
-        updateStats();
-        
-        // Periodic UI updates
-        setInterval(() => {
-            if (state.gamePhase === 'waiting') {
-                // Auto check cashout
-                if (state.autoMode && state.inRound && !state.isCrashed && 
-                    state.currentMultiplier >= state.autoCashoutMultiplier) {
-                    cashOut();
-                }
-            }
-        }, 100);
-    </script>
+    }, 1200);
+}
+
+function startAuto() {
+    if (S.autoRunning) return;
+    const bet = parseFloat(document.getElementById('autoBet').value);
+    const cashout = parseFloat(document.getElementById('autoCashout').value);
+    const max = parseInt(document.getElementById('autoMax').value);
+    const onWin = document.getElementById('autoOnWin').value.trim().toLowerCase();
+    const onLoss = document.getElementById('autoOnLoss').value.trim().toLowerCase();
+    
+    if (!bet || bet <= 0 || bet > S.balance) { showMsg('Invalid bet', 'error'); return; }
+    if (!cashout || cashout <= 1.0) { showMsg('Cashout must be > 1.0', 'error'); return; }
+    
+    S.auto = true;
+    S.autoRunning = true;
+    S.autoBet = bet;
+    S.bet = bet;
+    S.autoCashout = cashout;
+    S.autoMax = max;
+    S.autoCount = 0;
+    S.autoOnWin = onWin;
+    S.autoOnLoss = onLoss;
+    
+    document.getElementById('autoMaxDisplay').textContent = max;
+    document.getElementById('autoRound').textContent = '0';
+    document.getElementById('btnAutoStart').textContent = '▶ Running...';
+    
+    S.balance -= bet;
+    updBalance();
+    startRound();
+}
+
+function stopAuto() {
+    S.autoRunning = false;
+    S.auto = false;
+    document.getElementById('btnAutoStart').textContent = '▶ Auto';
+    document.getElementById('btnAutoStart').disabled = false;
+    document.getElementById('btnAutoStop').disabled = true;
+    showMsg('Auto stopped', 'info');
+    if (S.inRound) {
+        cancelAnimationFrame(S.animId);
+        S.inRound = false;
+        S.phase = 'waiting';
+        document.getElementById('multiplier').className = 'multiplier waiting';
+        document.getElementById('statusText').textContent = 'Waiting for next round';
+        document.getElementById('statusText').className = 'game-status waiting';
+        document.getElementById('statusText').style.color = '';
+        document.getElementById('btnBet').disabled = false;
+        document.getElementById('btnCashout').disabled = true;
+    }
+}
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById(this.dataset.tab + 'Tab').classList.add('active');
+    });
+});
+
+// Init
+resize();
+updBalance();
+updStats();
+
+// Simulate waiting state
+setInterval(() => {
+    if (S.phase === 'waiting' && !S.inRound) {
+        // Just keep UI fresh
+    }
+}, 5000);
+</script>
 </body>
 </html>
